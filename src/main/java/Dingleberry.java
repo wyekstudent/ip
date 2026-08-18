@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class Dingleberry {
     public static void main(String[] args) {
         String banner =
@@ -13,9 +15,25 @@ public class Dingleberry {
                         Hey There! I'm Dingleberry
                         Whata cana I doa for you?
                         ____________________________________________________________
-                        Bye. Hope to see you again soon!
-                        ____________________________________________________________
                         """;
         System.out.println(banner);
+
+        Scanner scanner = new Scanner(System.in);
+
+        while(true) {
+            String input = scanner.nextLine();
+
+            // Make it case insensitive
+
+            if (input.equalsIgnoreCase("bye")) {
+                break;
+            }
+            System.out.println("____________________________________________________________");
+            System.out.println(input);
+            System.out.println("____________________________________________________________");
+        }
+        scanner.close();
+
+        System.out.println("Bya hope to see your berries again!");
     }
 }
