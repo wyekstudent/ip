@@ -23,7 +23,7 @@ public class Dingleberry {
 
         Scanner scanner = new Scanner(System.in);
         int count = 0;
-        String[] dinglelist = new String[MAX_TASKS];
+        Task[] dinglelist = new Task[MAX_TASKS];
 
         while(count < MAX_TASKS) {
             String input = scanner.nextLine();
@@ -33,13 +33,43 @@ public class Dingleberry {
             } else if (input.equalsIgnoreCase("list")) {
                 System.out.println(SEPARATOR);
                 for (int i = 1; i <= count; i++) {
-                    System.out.printf("%d. %s\n", i, dinglelist[i - 1]);
+                    System.out.printf("%d.%s\n", i, dinglelist[i - 1]);
                 }
                 System.out.println(SEPARATOR);
+            } else if (input.toLowerCase().startsWith("mark ")) {
+                try {
+                    int taskNumber = Integer.parseInt(input.substring(5)) - 1;
+                    if (taskNumber >= 0 && taskNumber < count) {
+                        dinglelist[taskNumber].markAsDone();
+                        System.out.println(SEPARATOR);
+                        System.out.println("Nice! I've marked this task as done");
+                        System.out.println(dinglelist[taskNumber]);
+                        System.out.println(SEPARATOR);
+                    } else {
+                        System.out.println("Invalid task number!");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid format! Use 'mark <item no.>'");
+                }
+            } else if (input.toLowerCase().startsWith("unmark ")) {
+                try {
+                    int taskNumber = Integer.parseInt(input.substring(7)) - 1;
+                    if (taskNumber >= 0 && taskNumber < count) {
+                        dinglelist[taskNumber].unmarkDone();
+                        System.out.println(SEPARATOR);
+                        System.out.println("OK, I've marked this task as not done yet");
+                        System.out.println(dinglelist[taskNumber]);
+                        System.out.println(SEPARATOR);
+                    } else {
+                        System.out.println("Invalid task number!");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid format! Use 'unmark <item no.>'");
+                }
             } else {
-                dinglelist[count++] = input;
+                dinglelist[count++] = new Task(input);
                 System.out.println(SEPARATOR);
-                System.out.println("added: " + input);
+                System.out.println("added: " + dinglelist[count - 1]);
                 System.out.println(SEPARATOR);
             }
         }
