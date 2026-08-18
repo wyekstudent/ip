@@ -16,21 +16,34 @@ public class Dingleberry {
                         Whata cana I doa for you?
                         ____________________________________________________________
                         """;
+        // Prints out above banner
         System.out.println(banner);
 
+        // Takes in user input
         Scanner scanner = new Scanner(System.in);
+        int count = 0;
+        int maxTasks = 100; // Max number of tasks
+        String[] dinglelist = new String[maxTasks];
 
-        while(true) {
+        while(count < maxTasks) {
             String input = scanner.nextLine();
 
-            // Make it case insensitive
-
+            // Make it case-insensitive
             if (input.equalsIgnoreCase("bye")) {
                 break;
+            } else if (input.equalsIgnoreCase("list")) {
+                // Sets the list item
+                System.out.println("____________________________________________________________");
+                for (int i = 1; i <= count; i++) {
+                    System.out.printf("%d. %s\n", i, dinglelist[i - 1]);
+                }
+                System.out.println("____________________________________________________________");
+            } else {
+                dinglelist[count++] = input;
+                System.out.println("____________________________________________________________");
+                System.out.println("added: " + input);
+                System.out.println("____________________________________________________________");
             }
-            System.out.println("____________________________________________________________");
-            System.out.println(input);
-            System.out.println("____________________________________________________________");
         }
         scanner.close();
 
