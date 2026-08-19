@@ -25,85 +25,89 @@ public class Dingleberry {
         int count = 0;
         Task[] dinglelist = new Task[MAX_TASKS];
 
-        while(count < MAX_TASKS) {
+        while (scanner.hasNextLine() && count < MAX_TASKS) {
             String input = scanner.nextLine();
 
-            if (input.equalsIgnoreCase("bye")) {
-                break;
-            } else if (input.equalsIgnoreCase("list")) {
-                System.out.println(SEPARATOR);
-                for (int i = 1; i <= count; i++) {
-                    System.out.printf("%d.%s\n", i, dinglelist[i - 1]);
-                }
-                System.out.println(SEPARATOR);
-            } else if (input.toLowerCase().startsWith("mark ")) {
-                try {
-                    int taskNumber = Integer.parseInt(input.substring(5)) - 1;
-                    if (taskNumber >= 0 && taskNumber < count) {
-                        dinglelist[taskNumber].markAsDone();
-                        System.out.println(SEPARATOR);
-                        System.out.println("Nice! I've marked this task as done");
-                        System.out.println(dinglelist[taskNumber]);
-                        System.out.println(SEPARATOR);
-                    } else {
-                        System.out.println("Invalid task number!");
+            try {
+                if (input.isBlank()) {
+                    throw new DingleberryException("Please give me a command or a task description.");
+                } else if (input.equalsIgnoreCase("bye")) {
+                    break;
+                } else if (input.equalsIgnoreCase("list") || input.toLowerCase().startsWith("list ")) {
+                    if (!input.equalsIgnoreCase("list")) {
+                        throw new DingleberryException("'list' does not accept parameters.");
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid format! Use 'mark <item no.>'");
-                }
-            } else if (input.toLowerCase().startsWith("unmark ")) {
-                try {
-                    int taskNumber = Integer.parseInt(input.substring(7)) - 1;
-                    if (taskNumber >= 0 && taskNumber < count) {
-                        dinglelist[taskNumber].unmarkDone();
-                        System.out.println(SEPARATOR);
-                        System.out.println("OK, I've marked this task as not done yet");
-                        System.out.println(dinglelist[taskNumber]);
-                        System.out.println(SEPARATOR);
-                    } else {
-                        System.out.println("Invalid task number!");
+                    System.out.println(SEPARATOR);
+                    for (int i = 1; i <= count; i++) {
+                        System.out.printf("%d.%s\n", i, dinglelist[i - 1]);
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid format! Use 'unmark <item no.>'");
+                    System.out.println(SEPARATOR);
+                } else if (input.equalsIgnoreCase("todo") || input.toLowerCase().startsWith("todo ")) {
+                    ensureCapacity(count);
+                    String description = requireValue(input.length() > 4 ? input.substring(5) : "", "todo");
+                    dinglelist[count++] = new ToDos(description);
+                    printAddedTask(dinglelist[count - 1], count);
+                } else if (input.equalsIgnoreCase("deadline") || input.toLowerCase().startsWith("deadline ")) {
+                    int byIndex = input.toLowerCase().indexOf(" /by ");
+                    if (byIndex <= 9) {
+                        throw new DingleberryException("A deadline needs a description and '/by <date>'.");
+                    }
+                    ensureCapacity(count);
+                    String description = requireValue(input.substring(9, byIndex), "deadline");
+                    String dueDate = requireValue(input.substring(byIndex + 5), "deadline");
+                    dinglelist[count++] = new Deadlines(description, dueDate);
+                    printAddedTask(dinglelist[count - 1], count);
+                } else if (input.equalsIgnoreCase("event") || input.toLowerCase().startsWith("event ")) {
+                    int fromIndex = input.toLowerCase().indexOf(" /from ");
+                    int toIndex = input.toLowerCase().indexOf(" /to ");
+                    if (fromIndex <= 6 || toIndex <= fromIndex) {
+                        throw new DingleberryException("An event needs a description, '/from <time>', and '/to <time>'.");
+                    }
+                    ensureCapacity(count);
+                    String description = requireValue(input.substring(6, fromIndex), "event");
+                    String from = requireValue(input.substring(fromIndex + 7, toIndex), "event");
+                    String to = requireValue(input.substring(toIndex + 5), "event");
+                    dinglelist[count++] = new Events(description, from, to);
+                    printAddedTask(dinglelist[count - 1], count);
+                } else {
+                    throw new DingleberryException(
+                            "I don't recognize that command. Use 'todo', 'list', 'deadline', or 'event'.",
+                            DingleberryException.ErrorType.WRONG_COMMAND);
                 }
-            } else if (input.toLowerCase().startsWith("todo ")) {
-                dinglelist[count++] = new ToDos(input.substring(5));
+            } catch (DingleberryException e) {
                 System.out.println(SEPARATOR);
-                System.out.println("Got it. I've added this task:");
-                System.out.println("  " + dinglelist[count - 1]);
-                System.out.println("Now you have " + count + " tasks in the list.");
-                System.out.println(SEPARATOR);
-            } else if (input.toLowerCase().startsWith("deadline ")) {
-                int byIndex = input.toLowerCase().indexOf(" /by ");
-                if (byIndex > 9) {
-                    dinglelist[count++] = new Deadlines(input.substring(9, byIndex), input.substring(byIndex + 5));
-                    System.out.println(SEPARATOR);
-                    System.out.println("Got it. I've added this task:");
-                    System.out.println("  " + dinglelist[count - 1]);
-                    System.out.println("Now you have " + count + " tasks in the list.");
-                    System.out.println(SEPARATOR);
+                if (e.isWrongCommand()) {
+                    System.out.println("Oops, Dingleberry doesn't know that command: " + e.getMessage());
+                } else {
+                    System.out.println("Oops, Dingleberry found incorrect parameters: " + e.getMessage());
                 }
-            } else if (input.toLowerCase().startsWith("event ")) {
-                int fromIndex = input.toLowerCase().indexOf(" /from ");
-                int toIndex = input.toLowerCase().indexOf(" /to ");
-                if (fromIndex > 6 && toIndex > fromIndex) {
-                    dinglelist[count++] = new Events(input.substring(6, fromIndex),
-                            input.substring(fromIndex + 7, toIndex), input.substring(toIndex + 5));
-                    System.out.println(SEPARATOR);
-                    System.out.println("Got it. I've added this task:");
-                    System.out.println("  " + dinglelist[count - 1]);
-                    System.out.println("Now you have " + count + " tasks in the list.");
-                    System.out.println(SEPARATOR);
-                }
-            } else {
-                dinglelist[count++] = new ToDos(input);
-                System.out.println(SEPARATOR);
-                System.out.println("added: " + dinglelist[count - 1]);
+                System.out.println("Please try again with the correct command and parameters.");
                 System.out.println(SEPARATOR);
             }
         }
         scanner.close();
 
         System.out.println("Bya hope to see your berries again!");
+    }
+
+    private static void ensureCapacity(int count) throws DingleberryException {
+        if (count >= MAX_TASKS) {
+            throw new DingleberryException("Your task list is full. Dingleberry cannot add another task.");
+        }
+    }
+
+    private static String requireValue(String value, String command) throws DingleberryException {
+        if (value.isBlank()) {
+            throw new DingleberryException("The " + command + " needs a non-empty description and details.");
+        }
+        return value;
+    }
+
+    private static void printAddedTask(Task task, int count) {
+        System.out.println(SEPARATOR);
+        System.out.println("Got it. I've added this task:");
+        System.out.println("  " + task);
+        System.out.println("Now you have " + count + " tasks in the list.");
+        System.out.println(SEPARATOR);
     }
 }
