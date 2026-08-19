@@ -66,8 +66,37 @@ public class Dingleberry {
                 } catch (NumberFormatException e) {
                     System.out.println("Invalid format! Use 'unmark <item no.>'");
                 }
+            } else if (input.toLowerCase().startsWith("todo ")) {
+                dinglelist[count++] = new ToDos(input.substring(5));
+                System.out.println(SEPARATOR);
+                System.out.println("Got it. I've added this task:");
+                System.out.println("  " + dinglelist[count - 1]);
+                System.out.println("Now you have " + count + " tasks in the list.");
+                System.out.println(SEPARATOR);
+            } else if (input.toLowerCase().startsWith("deadline ")) {
+                int byIndex = input.toLowerCase().indexOf(" /by ");
+                if (byIndex > 9) {
+                    dinglelist[count++] = new Deadlines(input.substring(9, byIndex), input.substring(byIndex + 5));
+                    System.out.println(SEPARATOR);
+                    System.out.println("Got it. I've added this task:");
+                    System.out.println("  " + dinglelist[count - 1]);
+                    System.out.println("Now you have " + count + " tasks in the list.");
+                    System.out.println(SEPARATOR);
+                }
+            } else if (input.toLowerCase().startsWith("event ")) {
+                int fromIndex = input.toLowerCase().indexOf(" /from ");
+                int toIndex = input.toLowerCase().indexOf(" /to ");
+                if (fromIndex > 6 && toIndex > fromIndex) {
+                    dinglelist[count++] = new Events(input.substring(6, fromIndex),
+                            input.substring(fromIndex + 7, toIndex), input.substring(toIndex + 5));
+                    System.out.println(SEPARATOR);
+                    System.out.println("Got it. I've added this task:");
+                    System.out.println("  " + dinglelist[count - 1]);
+                    System.out.println("Now you have " + count + " tasks in the list.");
+                    System.out.println(SEPARATOR);
+                }
             } else {
-                dinglelist[count++] = new Task(input);
+                dinglelist[count++] = new ToDos(input);
                 System.out.println(SEPARATOR);
                 System.out.println("added: " + dinglelist[count - 1]);
                 System.out.println(SEPARATOR);
