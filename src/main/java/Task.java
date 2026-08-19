@@ -1,7 +1,7 @@
 /**
  * Represents a task with a description and completion status.
  */
-public class Task {
+public abstract class Task {
     private String description;
     private boolean isDone;
 
