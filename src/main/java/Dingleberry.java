@@ -30,10 +30,20 @@ public class Dingleberry {
             try {
                 if (input.isBlank()) {
                     throw new DingleberryException("Please give me a command or a task description.");
-                } else if (input.equalsIgnoreCase("bye")) {
+                }
+
+                Command command = Command.fromInput(input);
+                if (command == null) {
+                    throw new DingleberryException(
+                            "I don't recognize that command. Use 'todo', 'list', 'delete', 'deadline', or 'event'.",
+                            DingleberryException.ErrorType.WRONG_COMMAND);
+                }
+
+                switch (command) {
+                case BYE:
                     break;
-                } else if (input.equalsIgnoreCase("list") || input.toLowerCase().startsWith("list ")) {
-                    if (!input.equalsIgnoreCase("list")) {
+                case LIST:
+                    if (!command.isExactInput(input)) {
                         throw new DingleberryException("'list' does not accept parameters.");
                     }
                     System.out.println(SEPARATOR);
@@ -41,8 +51,10 @@ public class Dingleberry {
                         System.out.printf("%d.%s\n", i + 1, dinglelist.get(i));
                     }
                     System.out.println(SEPARATOR);
-                } else if (input.equalsIgnoreCase("delete") || input.toLowerCase().startsWith("delete ")) {
-                    String taskNumberText = input.length() > 6 ? input.substring(7).trim() : "";
+                    break;
+                case DELETE:
+                    String taskNumberText = input.length() > command.keyword().length()
+                            ? input.substring(command.keyword().length() + 1).trim() : "";
                     int taskNumber;
                     try {
                         taskNumber = Integer.parseInt(taskNumberText);
@@ -57,34 +69,35 @@ public class Dingleberry {
                     System.out.println("Noted. I've removed this task: " + deletedTask);
                     System.out.println("Now you have " + dinglelist.size() + " tasks in the list");
                     System.out.println(SEPARATOR);
-                } else if (input.equalsIgnoreCase("todo") || input.toLowerCase().startsWith("todo ")) {
-                    String description = requireValue(input.length() > 4 ? input.substring(5) : "", "todo");
+                    break;
+                case TODO:
+                    String description = requireValue(input.length() > command.keyword().length()
+                            ? input.substring(command.keyword().length() + 1) : "", command.keyword());
                     dinglelist.add(new ToDos(description));
                     printAddedTask(dinglelist.get(dinglelist.size() - 1), dinglelist.size());
-                } else if (input.equalsIgnoreCase("deadline") || input.toLowerCase().startsWith("deadline ")) {
+                    break;
+                case DEADLINE:
                     int byIndex = input.toLowerCase().indexOf(" /by ");
-                    if (byIndex <= 9) {
+                    if (byIndex <= command.keyword().length()) {
                         throw new DingleberryException("A deadline needs a description and '/by <date>'.");
                     }
-                    String description = requireValue(input.substring(9, byIndex), "deadline");
-                    String dueDate = requireValue(input.substring(byIndex + 5), "deadline");
-                    dinglelist.add(new Deadlines(description, dueDate));
+                    String deadlineDescription = requireValue(input.substring(command.keyword().length() + 1, byIndex), command.keyword());
+                    String dueDate = requireValue(input.substring(byIndex + 5), command.keyword());
+                    dinglelist.add(new Deadlines(deadlineDescription, dueDate));
                     printAddedTask(dinglelist.get(dinglelist.size() - 1), dinglelist.size());
-                } else if (input.equalsIgnoreCase("event") || input.toLowerCase().startsWith("event ")) {
+                    break;
+                case EVENT:
                     int fromIndex = input.toLowerCase().indexOf(" /from ");
                     int toIndex = input.toLowerCase().indexOf(" /to ");
-                    if (fromIndex <= 6 || toIndex <= fromIndex) {
+                    if (fromIndex <= command.keyword().length() || toIndex <= fromIndex) {
                         throw new DingleberryException("An event needs a description, '/from <time>', and '/to <time>'.");
                     }
-                    String description = requireValue(input.substring(6, fromIndex), "event");
-                    String from = requireValue(input.substring(fromIndex + 7, toIndex), "event");
-                    String to = requireValue(input.substring(toIndex + 5), "event");
-                    dinglelist.add(new Events(description, from, to));
+                    String eventDescription = requireValue(input.substring(command.keyword().length() + 1, fromIndex), command.keyword());
+                    String from = requireValue(input.substring(fromIndex + 7, toIndex), command.keyword());
+                    String to = requireValue(input.substring(toIndex + 5), command.keyword());
+                    dinglelist.add(new Events(eventDescription, from, to));
                     printAddedTask(dinglelist.get(dinglelist.size() - 1), dinglelist.size());
-                } else {
-                    throw new DingleberryException(
-                            "I don't recognize that command. Use 'todo', 'list', 'delete', 'deadline', or 'event'.",
-                            DingleberryException.ErrorType.WRONG_COMMAND);
+                    break;
                 }
             } catch (DingleberryException e) {
                 System.out.println(SEPARATOR);
