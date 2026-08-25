@@ -1,20 +1,29 @@
 import java.io.IOException;
 
+/**
+ * Entry point and orchestrator for the Dingleberry task-tracking chatbot.
+ * Wires together the {@link Ui}, {@link Storage}, and {@link TaskList}
+ * collaborators and drives the read-parse-execute loop in {@link #run()}.
+ */
 public class Dingleberry {
-    private static final String DATA_FILE_PATH = "./data/dingleberry.txt";
+    private final Ui ui;
+    private final Storage storage;
+    private TaskList tasks;
 
-    public static void main(String[] args) {
-        Ui ui = new Ui();
-        ui.showWelcome();
-
-        Storage storage = new Storage(DATA_FILE_PATH);
-        TaskList dinglelist;
+    public Dingleberry(String filePath) {
+        ui = new Ui();
+        storage = new Storage(filePath);
         try {
-            dinglelist = new TaskList(storage.load());
+            tasks = new TaskList(storage.load());
         } catch (IOException e) {
             ui.showLoadingError(e.getMessage());
-            dinglelist = new TaskList();
+            tasks = new TaskList();
         }
+    }
+
+    /** Runs the welcome-loop-goodbye lifecycle until the user closes input. */
+    public void run() {
+        ui.showWelcome();
 
         while (ui.hasNextCommand()) {
             String input = ui.readCommand();
@@ -36,31 +45,31 @@ public class Dingleberry {
                     break;
                 case LIST:
                     Parser.requireNoParameters(command, input);
-                    ui.showTaskList(dinglelist);
+                    ui.showTaskList(tasks);
                     break;
                 case DELETE:
                     int taskNumber = Parser.parseTaskNumber(command, input);
-                    if (taskNumber < 1 || taskNumber > dinglelist.size()) {
+                    if (taskNumber < 1 || taskNumber > tasks.size()) {
                         throw new DingleberryException("That task number is not in the list.");
                     }
-                    Task deletedTask = dinglelist.remove(taskNumber - 1);
-                    ui.showTaskDeleted(deletedTask, dinglelist.size());
-                    saveTasks(storage, dinglelist, ui);
+                    Task deletedTask = tasks.remove(taskNumber - 1);
+                    ui.showTaskDeleted(deletedTask, tasks.size());
+                    saveTasks();
                     break;
                 case TODO:
-                    dinglelist.add(Parser.parseTodo(command, input));
-                    ui.showTaskAdded(dinglelist.get(dinglelist.size() - 1), dinglelist.size());
-                    saveTasks(storage, dinglelist, ui);
+                    tasks.add(Parser.parseTodo(command, input));
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
+                    saveTasks();
                     break;
                 case DEADLINE:
-                    dinglelist.add(Parser.parseDeadline(command, input));
-                    ui.showTaskAdded(dinglelist.get(dinglelist.size() - 1), dinglelist.size());
-                    saveTasks(storage, dinglelist, ui);
+                    tasks.add(Parser.parseDeadline(command, input));
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
+                    saveTasks();
                     break;
                 case EVENT:
-                    dinglelist.add(Parser.parseEvent(command, input));
-                    ui.showTaskAdded(dinglelist.get(dinglelist.size() - 1), dinglelist.size());
-                    saveTasks(storage, dinglelist, ui);
+                    tasks.add(Parser.parseEvent(command, input));
+                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
+                    saveTasks();
                     break;
                 }
             } catch (DingleberryException e) {
@@ -76,12 +85,16 @@ public class Dingleberry {
         ui.showGoodbye();
     }
 
-    private static void saveTasks(Storage storage, TaskList dinglelist, Ui ui) {
+    private void saveTasks() {
         try {
-            storage.save(dinglelist);
+            storage.save(tasks);
         } catch (IOException e) {
             ui.showSavingError(e.getMessage());
         }
+    }
+
+    public static void main(String[] args) {
+        new Dingleberry("./data/dingleberry.txt").run();
     }
 }
 
