@@ -3,29 +3,57 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * Makes sense of a raw line of user input for a given {@link Command}:
- * validates its parameters and turns them into ready-to-use values (task
- * numbers or constructed {@link Task}s), throwing {@link DingleberryException}
- * when the input doesn't match what the command expects.
+ * Makes sense of a raw line of user input: identifies the {@link CommandWord},
+ * validates its parameters, and turns the whole line into a ready-to-execute
+ * {@link Command}, throwing {@link DingleberryException} when the input
+ * doesn't match what the command expects.
  */
 public class Parser {
     // Expected user input format for date/times, e.g. "2019-12-02 1800".
     private static final DateTimeFormatter INPUT_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
-    /** Identifies the command keyword at the start of the input, or null if none matches. */
-    public static Command parseCommand(String input) {
-        return Command.fromInput(input);
+    /** Parses a full line of user input into an executable {@link Command}. */
+    public static Command parse(String fullCommand) throws DingleberryException {
+        if (fullCommand.isBlank()) {
+            throw new DingleberryException("Please give me a command or a task description.");
+        }
+
+        CommandWord commandWord = CommandWord.fromInput(fullCommand);
+        if (commandWord == null) {
+            throw new DingleberryException(
+                    "I don't recognize that command. Use 'todo', 'list', 'delete', 'deadline', or 'event'.",
+                    DingleberryException.ErrorType.WRONG_COMMAND);
+        }
+
+        switch (commandWord) {
+        case BYE:
+            return new ExitCommand();
+        case LIST:
+            requireNoParameters(commandWord, fullCommand);
+            return new ListCommand();
+        case DELETE:
+            return new DeleteCommand(parseTaskNumber(commandWord, fullCommand));
+        case TODO:
+            return new AddCommand(parseTodo(commandWord, fullCommand));
+        case DEADLINE:
+            return new AddCommand(parseDeadline(commandWord, fullCommand));
+        case EVENT:
+            return new AddCommand(parseEvent(commandWord, fullCommand));
+        default:
+            // Unreachable: every CommandWord value is handled above.
+            throw new DingleberryException("Unhandled command: " + commandWord);
+        }
     }
 
     /** Rejects any extra text after a command that takes no parameters, e.g. "list". */
-    public static void requireNoParameters(Command command, String input) throws DingleberryException {
+    private static void requireNoParameters(CommandWord command, String input) throws DingleberryException {
         if (!command.isExactInput(input)) {
             throw new DingleberryException("'" + command.keyword() + "' does not accept parameters.");
         }
     }
 
     /** Parses the one-based task number following a "delete" command. */
-    public static int parseTaskNumber(Command command, String input) throws DingleberryException {
+    private static int parseTaskNumber(CommandWord command, String input) throws DingleberryException {
         String taskNumberText = input.length() > command.keyword().length()
                 ? input.substring(command.keyword().length() + 1).trim() : "";
         try {
@@ -36,14 +64,14 @@ public class Parser {
     }
 
     /** Parses a "todo &lt;description&gt;" command into a {@link ToDos}. */
-    public static ToDos parseTodo(Command command, String input) throws DingleberryException {
+    private static ToDos parseTodo(CommandWord command, String input) throws DingleberryException {
         String description = requireValue(input.length() > command.keyword().length()
                 ? input.substring(command.keyword().length() + 1) : "", command.keyword());
         return new ToDos(description);
     }
 
     /** Parses a "deadline &lt;description&gt; /by &lt;date&gt;" command into a {@link Deadlines}. */
-    public static Deadlines parseDeadline(Command command, String input) throws DingleberryException {
+    private static Deadlines parseDeadline(CommandWord command, String input) throws DingleberryException {
         int byIndex = input.toLowerCase().indexOf(" /by ");
         if (byIndex <= command.keyword().length()) {
             throw new DingleberryException("A deadline needs a description and '/by <date>'.");
@@ -54,7 +82,7 @@ public class Parser {
     }
 
     /** Parses an "event &lt;description&gt; /from &lt;time&gt; /to &lt;time&gt;" command into an {@link Events}. */
-    public static Events parseEvent(Command command, String input) throws DingleberryException {
+    private static Events parseEvent(CommandWord command, String input) throws DingleberryException {
         int fromIndex = input.toLowerCase().indexOf(" /from ");
         int toIndex = input.toLowerCase().indexOf(" /to ");
         if (fromIndex <= command.keyword().length() || toIndex <= fromIndex) {

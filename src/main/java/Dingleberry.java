@@ -21,7 +21,7 @@ public class Dingleberry {
         }
     }
 
-    /** Runs the welcome-loop-goodbye lifecycle until the user closes input. */
+    /** Runs the welcome-loop-goodbye lifecycle until the user closes input or issues "bye". */
     public void run() {
         ui.showWelcome();
 
@@ -29,47 +29,9 @@ public class Dingleberry {
             String input = ui.readCommand();
 
             try {
-                if (input.isBlank()) {
-                    throw new DingleberryException("Please give me a command or a task description.");
-                }
-
-                Command command = Parser.parseCommand(input);
-                if (command == null) {
-                    throw new DingleberryException(
-                            "I don't recognize that command. Use 'todo', 'list', 'delete', 'deadline', or 'event'.",
-                            DingleberryException.ErrorType.WRONG_COMMAND);
-                }
-
-                switch (command) {
-                case BYE:
-                    break;
-                case LIST:
-                    Parser.requireNoParameters(command, input);
-                    ui.showTaskList(tasks);
-                    break;
-                case DELETE:
-                    int taskNumber = Parser.parseTaskNumber(command, input);
-                    if (taskNumber < 1 || taskNumber > tasks.size()) {
-                        throw new DingleberryException("That task number is not in the list.");
-                    }
-                    Task deletedTask = tasks.remove(taskNumber - 1);
-                    ui.showTaskDeleted(deletedTask, tasks.size());
-                    saveTasks();
-                    break;
-                case TODO:
-                    tasks.add(Parser.parseTodo(command, input));
-                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
-                    saveTasks();
-                    break;
-                case DEADLINE:
-                    tasks.add(Parser.parseDeadline(command, input));
-                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
-                    saveTasks();
-                    break;
-                case EVENT:
-                    tasks.add(Parser.parseEvent(command, input));
-                    ui.showTaskAdded(tasks.get(tasks.size() - 1), tasks.size());
-                    saveTasks();
+                Command command = Parser.parse(input);
+                command.execute(tasks, ui, storage);
+                if (command.isExit()) {
                     break;
                 }
             } catch (DingleberryException e) {
@@ -85,16 +47,9 @@ public class Dingleberry {
         ui.showGoodbye();
     }
 
-    private void saveTasks() {
-        try {
-            storage.save(tasks);
-        } catch (IOException e) {
-            ui.showSavingError(e.getMessage());
-        }
-    }
-
     public static void main(String[] args) {
         new Dingleberry("./data/dingleberry.txt").run();
     }
 }
+
 
