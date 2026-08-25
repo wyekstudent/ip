@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 
 public class Dingleberry {
     private static final String DATA_FILE_PATH = "./data/dingleberry.txt";
@@ -14,12 +13,12 @@ public class Dingleberry {
         ui.showWelcome();
 
         Storage storage = new Storage(DATA_FILE_PATH);
-        ArrayList<Task> dinglelist;
+        TaskList dinglelist;
         try {
-            dinglelist = storage.load();
+            dinglelist = new TaskList(storage.load());
         } catch (IOException e) {
             ui.showLoadingError(e.getMessage());
-            dinglelist = new ArrayList<>();
+            dinglelist = new TaskList();
         }
 
         while (ui.hasNextCommand()) {
@@ -130,7 +129,7 @@ public class Dingleberry {
         }
     }
 
-    private static void saveTasks(Storage storage, ArrayList<Task> dinglelist, Ui ui) {
+    private static void saveTasks(Storage storage, TaskList dinglelist, Ui ui) {
         try {
             storage.save(dinglelist);
         } catch (IOException e) {
