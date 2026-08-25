@@ -4,6 +4,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,10 +83,12 @@ public class Storage {
                 task = new ToDos(description);
                 break;
             case "D":
-                task = new Deadlines(description, parts[3]);
+                task = new Deadlines(description, LocalDateTime.parse(parts[3], DateTimeFormatter.ISO_LOCAL_DATE_TIME));
                 break;
             case "E":
-                task = new Events(description, parts[3], parts[4]);
+                task = new Events(description,
+                        LocalDateTime.parse(parts[3], DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                        LocalDateTime.parse(parts[4], DateTimeFormatter.ISO_LOCAL_DATE_TIME));
                 break;
             default:
                 return null;
@@ -92,7 +97,7 @@ public class Storage {
                 task.markAsDone();
             }
             return task;
-        } catch (ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException | DateTimeParseException e) {
             return null;
         }
     }
