@@ -1,8 +1,10 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Dingleberry {
     private static final String SEPARATOR = "____________________________________________________________";
+    private static final String DATA_FILE_PATH = "./data/dingleberry.txt";
 
     public static void main(String[] args) {
         String banner =
@@ -22,7 +24,16 @@ public class Dingleberry {
         System.out.println(banner);
 
         Scanner scanner = new Scanner(System.in);
-        ArrayList<Task> dinglelist = new ArrayList<>();
+        Storage storage = new Storage(DATA_FILE_PATH);
+        ArrayList<Task> dinglelist;
+        try {
+            dinglelist = storage.load();
+        } catch (IOException e) {
+            System.out.println(SEPARATOR);
+            System.out.println("Couldn't load saved tasks (" + e.getMessage() + "). Starting with an empty list.");
+            System.out.println(SEPARATOR);
+            dinglelist = new ArrayList<>();
+        }
 
         while (scanner.hasNextLine()) {
             String input = scanner.nextLine();
@@ -69,12 +80,14 @@ public class Dingleberry {
                     System.out.println("Noted. I've removed this task: " + deletedTask);
                     System.out.println("Now you have " + dinglelist.size() + " tasks in the list");
                     System.out.println(SEPARATOR);
+                    saveTasks(storage, dinglelist);
                     break;
                 case TODO:
                     String description = requireValue(input.length() > command.keyword().length()
                             ? input.substring(command.keyword().length() + 1) : "", command.keyword());
                     dinglelist.add(new ToDos(description));
                     printAddedTask(dinglelist.get(dinglelist.size() - 1), dinglelist.size());
+                    saveTasks(storage, dinglelist);
                     break;
                 case DEADLINE:
                     int byIndex = input.toLowerCase().indexOf(" /by ");
@@ -85,6 +98,7 @@ public class Dingleberry {
                     String dueDate = requireValue(input.substring(byIndex + 5), command.keyword());
                     dinglelist.add(new Deadlines(deadlineDescription, dueDate));
                     printAddedTask(dinglelist.get(dinglelist.size() - 1), dinglelist.size());
+                    saveTasks(storage, dinglelist);
                     break;
                 case EVENT:
                     int fromIndex = input.toLowerCase().indexOf(" /from ");
@@ -97,6 +111,7 @@ public class Dingleberry {
                     String to = requireValue(input.substring(toIndex + 5), command.keyword());
                     dinglelist.add(new Events(eventDescription, from, to));
                     printAddedTask(dinglelist.get(dinglelist.size() - 1), dinglelist.size());
+                    saveTasks(storage, dinglelist);
                     break;
                 }
             } catch (DingleberryException e) {
@@ -128,5 +143,15 @@ public class Dingleberry {
         System.out.println("  " + task);
         System.out.println("Now you have " + count + " tasks in the list.");
         System.out.println(SEPARATOR);
+    }
+
+    private static void saveTasks(Storage storage, ArrayList<Task> dinglelist) {
+        try {
+            storage.save(dinglelist);
+        } catch (IOException e) {
+            System.out.println(SEPARATOR);
+            System.out.println("Couldn't save tasks to disk (" + e.getMessage() + ").");
+            System.out.println(SEPARATOR);
+        }
     }
 }

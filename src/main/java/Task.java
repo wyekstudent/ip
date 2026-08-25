@@ -22,6 +22,27 @@ public abstract class Task {
         isDone = false;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    /**
+     * Encodes the fields common to every task type as "doneFlag | description",
+     * for use by subclasses building their {@link #toSaveFormat()} line.
+     */
+    protected String encodeCommonFields() {
+        return String.format("%s | %s", isDone ? "1" : "0", description);
+    }
+
+    /**
+     * Encodes this task as a single line for persistence in the data file.
+     */
+    public abstract String toSaveFormat();
+
     @Override
     public String toString() {
         return String.format("[%s] %s", this.getStatusIcon(), this.description);
