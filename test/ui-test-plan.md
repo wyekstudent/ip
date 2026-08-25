@@ -11,7 +11,7 @@ Verify that todo, deadline, and event commands are added and displayed in list o
 
 ### Command
 ```powershell
-java -cp build\classes Dingleberry
+java -cp build\classes dingleberry.Dingleberry
 ```
 
 ### Input
@@ -71,7 +71,7 @@ Verify that unsupported commands are rejected and the chatbot continues acceptin
 
 ### Command
 ```powershell
-java -cp build\classes Dingleberry
+java -cp build\classes dingleberry.Dingleberry
 ```
 
 ### Input
