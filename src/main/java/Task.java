@@ -1,7 +1,13 @@
+import java.time.format.DateTimeFormatter;
+
 /**
  * Represents a task with a description and completion status.
  */
 public abstract class Task {
+    /** Shared format used to display date/times to the user, e.g. "Dec 2 2019, 6:00 pm". */
+    public static final DateTimeFormatter DISPLAY_DATE_TIME_FORMAT =
+            DateTimeFormatter.ofPattern("MMM d yyyy, h:mm a");
+
     private String description;
     private boolean isDone;
 
