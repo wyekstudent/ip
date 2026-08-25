@@ -1,3 +1,5 @@
+package dingleberry.parser;
+
 /**
  * Represents a command understood by Dingleberry.
  */

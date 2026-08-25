@@ -1,3 +1,11 @@
+package dingleberry.command;
+
+import dingleberry.exception.DingleberryException;
+import dingleberry.model.Task;
+import dingleberry.model.TaskList;
+import dingleberry.persistence.Storage;
+import dingleberry.ui.Ui;
+
 /** Deletes the task at a one-based index parsed from user input. */
 public class DeleteCommand extends Command {
     private final int taskNumber;

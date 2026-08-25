@@ -1,3 +1,10 @@
+package dingleberry.command;
+
+import dingleberry.model.Task;
+import dingleberry.model.TaskList;
+import dingleberry.persistence.Storage;
+import dingleberry.ui.Ui;
+
 /** Adds an already-constructed task (todo, deadline, or event) to the list. */
 public class AddCommand extends Command {
     private final Task taskToAdd;
