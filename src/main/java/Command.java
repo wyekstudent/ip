@@ -1,35 +1,24 @@
+import java.io.IOException;
+
 /**
- * Represents a command understood by Dingleberry.
+ * Represents a single user command, already validated and ready to run
+ * against the app's collaborators. Produced by {@link Parser#parse}.
  */
-public enum Command {
-    BYE("bye"),
-    LIST("list"),
-    DELETE("delete"),
-    TODO("todo"),
-    DEADLINE("deadline"),
-    EVENT("event");
+public abstract class Command {
+    /** Carries out this command's effect on the task list, UI, and storage. */
+    public abstract void execute(TaskList tasks, Ui ui, Storage storage) throws DingleberryException;
 
-    private final String keyword;
-
-    Command(String keyword) {
-        this.keyword = keyword;
+    /** Whether executing this command should end the program's main loop. */
+    public boolean isExit() {
+        return false;
     }
 
-    public String keyword() {
-        return keyword;
-    }
-
-    public boolean isExactInput(String input) {
-        return input.equalsIgnoreCase(keyword);
-    }
-
-    public static Command fromInput(String input) {
-        for (Command command : values()) {
-            if (command.isExactInput(input) || command != BYE && input.regionMatches(true, 0, command.keyword + " ", 0,
-                    command.keyword.length() + 1)) {
-                return command;
-            }
+    /** Persists the task list, reporting any I/O failure through the UI instead of throwing. */
+    protected void saveTasks(TaskList tasks, Storage storage, Ui ui) {
+        try {
+            storage.save(tasks);
+        } catch (IOException e) {
+            ui.showSavingError(e.getMessage());
         }
-        return null;
     }
 }

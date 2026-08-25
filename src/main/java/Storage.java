@@ -57,14 +57,14 @@ public class Storage {
     /**
      * Overwrites the data file with the current task list, one task per line.
      */
-    public void save(ArrayList<Task> tasks) throws IOException {
+    public void save(TaskList tasks) throws IOException {
         File parentDir = filePath.toFile().getParentFile();
         if (parentDir != null) {
             parentDir.mkdirs();
         }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
-            for (Task task : tasks) {
-                writer.write(task.toSaveFormat());
+            for (int i = 0; i < tasks.size(); i++) {
+                writer.write(tasks.get(i).toSaveFormat());
                 writer.newLine();
             }
         }
