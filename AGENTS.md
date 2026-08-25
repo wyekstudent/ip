@@ -22,6 +22,9 @@ Unless the user says otherwise, assume that you are assisting a student working 
   * Make generated code as self-explanatory as possible, and include explanatory comments where they improve understanding.
   * When faced with a design choice, choose the simplest option that is sufficient for the requirements, while briefly explaining relevant more advanced alternatives.
 
+* Maintain JUnit tests for the highest-value methods, targeting coverage of approximately the top 50% of methods based on their complexity, centrality, and business importance.
+* Update the relevant JUnit tests after every code change so that the 50% coverage target remains satisfied and the tests continue to describe the current behavior.
+
 # Project-specific requirements
 
 ## Java version:
