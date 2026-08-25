@@ -1,4 +1,9 @@
+package dingleberry.ui;
+
 import java.util.Scanner;
+
+import dingleberry.model.Task;
+import dingleberry.model.TaskList;
 
 /**
  * Handles all interaction with the user: reading raw command lines from

@@ -1,4 +1,13 @@
+package dingleberry;
+
 import java.io.IOException;
+
+import dingleberry.command.Command;
+import dingleberry.exception.DingleberryException;
+import dingleberry.parser.Parser;
+import dingleberry.persistence.Storage;
+import dingleberry.model.TaskList;
+import dingleberry.ui.Ui;
 
 /**
  * Entry point and orchestrator for the Dingleberry task-tracking chatbot.

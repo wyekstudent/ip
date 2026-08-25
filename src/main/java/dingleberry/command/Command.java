@@ -1,4 +1,11 @@
+package dingleberry.command;
+
 import java.io.IOException;
+
+import dingleberry.exception.DingleberryException;
+import dingleberry.model.TaskList;
+import dingleberry.persistence.Storage;
+import dingleberry.ui.Ui;
 
 /**
  * Represents a single user command, already validated and ready to run

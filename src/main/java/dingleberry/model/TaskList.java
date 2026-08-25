@@ -1,3 +1,5 @@
+package dingleberry.model;
+
 import java.util.ArrayList;
 
 /**
