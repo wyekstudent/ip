@@ -23,3 +23,28 @@ Prerequisites: JDK 25, update Intellij to the most recent version.
    ```
 
 **Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+
+## Building and running the fat JAR
+
+The project uses the Shadow Gradle plugin to package the application classes and
+runtime dependencies into one executable JAR file.
+
+1. Open PowerShell in the project directory.
+1. Make sure `JAVA_HOME` points to a JDK 25 installation.
+1. Build the fat JAR:
+
+   ```powershell
+   .\gradlew.bat shadowJar
+   ```
+
+The resulting file is `build\libs\dingleberry.jar`. The `shadowJar` task includes
+the `dingleberry.Dingleberry` main class in the JAR manifest, so it can be run
+without manually assembling a classpath:
+
+```powershell
+java -jar build\libs\dingleberry.jar
+```
+
+The application reads commands from standard input. For example, type `list`
+or `bye` after starting the JAR. Re-run `shadowJar` after source changes to
+create an updated JAR.
