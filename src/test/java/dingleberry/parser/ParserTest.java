@@ -12,6 +12,7 @@ import dingleberry.command.AddCommand;
 import dingleberry.command.Command;
 import dingleberry.command.DeleteCommand;
 import dingleberry.command.ExitCommand;
+import dingleberry.command.FindCommand;
 import dingleberry.command.ListCommand;
 import dingleberry.exception.DingleberryException;
 
@@ -62,6 +63,13 @@ class ParserTest {
     }
 
     @Test
+    void parse_findWithKeyword_returnsFindCommand() throws DingleberryException {
+        Command command = Parser.parse("find lecture");
+
+        assertInstanceOf(FindCommand.class, command);
+    }
+
+    @Test
     void parse_blankInput_throwsIncorrectParameters() {
         DingleberryException exception = assertThrows(DingleberryException.class, () -> Parser.parse("   "));
 
@@ -96,6 +104,13 @@ class ParserTest {
     @Test
     void parse_deleteWithNonNumericNumber_throwsIncorrectParameters() {
         assertThrows(DingleberryException.class, () -> Parser.parse("delete two"));
+    }
+
+    @Test
+    void parse_findWithoutKeyword_throwsIncorrectParameters() {
+        DingleberryException exception = assertThrows(DingleberryException.class, () -> Parser.parse("find   "));
+
+        assertEquals("'find' needs a keyword.", exception.getMessage());
     }
 
     @Test

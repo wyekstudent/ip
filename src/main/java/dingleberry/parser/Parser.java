@@ -8,6 +8,7 @@ import dingleberry.command.AddCommand;
 import dingleberry.command.Command;
 import dingleberry.command.DeleteCommand;
 import dingleberry.command.ExitCommand;
+import dingleberry.command.FindCommand;
 import dingleberry.command.ListCommand;
 import dingleberry.exception.DingleberryException;
 import dingleberry.model.Deadlines;
@@ -43,6 +44,8 @@ public class Parser {
         case LIST:
             requireNoParameters(commandWord, fullCommand);
             return new ListCommand();
+        case FIND:
+            return new FindCommand(parseKeyword(commandWord, fullCommand));
         case DELETE:
             return new DeleteCommand(parseTaskNumber(commandWord, fullCommand));
         case TODO:
@@ -55,6 +58,16 @@ public class Parser {
             // Unreachable: every CommandWord value is handled above.
             throw new DingleberryException("Unhandled command: " + commandWord);
         }
+    }
+
+    /** Parses the keyword following a "find" command. */
+    private static String parseKeyword(CommandWord command, String input) throws DingleberryException {
+        String keyword = input.length() > command.keyword().length()
+                ? input.substring(command.keyword().length() + 1).trim() : "";
+        if (keyword.isBlank()) {
+            throw new DingleberryException("'" + command.keyword() + "' needs a keyword.");
+        }
+        return keyword;
     }
 
     /** Rejects any extra text after a command that takes no parameters, e.g. "list". */
