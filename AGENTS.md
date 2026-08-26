@@ -37,6 +37,8 @@ Ensure that Java 25 is used when running the application or build tasks. On macO
 
 ## Git
 
+For every future commit proposal, preparation, review, amendment, or creation, agents MUST load and follow the project-specific `seedu-git-standard` skill at `.github/skills/seedu-git-standard/SKILL.md`.
+
 Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
