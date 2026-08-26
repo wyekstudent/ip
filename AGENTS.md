@@ -2,6 +2,10 @@
 
 This repository is a starter template for a greenfield Java project used in an introductory software engineering course in an undergraduate computer science program. Students use it as the starting point for their own projects.
 
+# Java coding standard
+
+For every Java production or test code change, agents MUST load and follow the project-specific `seedu-java-coding-standard` skill at `.github/skills/seedu-java-coding-standard/SKILL.md`. This requirement applies to creating, reviewing, editing, and refactoring Java code.
+
 # Default user context
 
 Unless the user says otherwise, assume that you are assisting a student working on a project in this repository. If the user identifies themselves as an instructor or another project stakeholder, adapt your response to that role.
