@@ -6,38 +6,23 @@ package dingleberry.exception;
 public class DingleberryException extends Exception {
     private final ErrorType errorType;
 
-    /**
-     * Creates an exception for a parameter-validation failure.
-     *
-     * @param message the user-facing error description
-     */
+    /** Creates an exception for incorrect command parameters. */
     public DingleberryException(String message) {
         this(message, ErrorType.INCORRECT_PARAMETERS);
     }
 
-    /**
-     * Creates an exception with a specific classification for UI handling.
-     *
-     * @param message the user-facing error description
-     * @param errorType the category of the issue
-     */
+    /** Creates an exception with the supplied user-input error type. */
     public DingleberryException(String message, ErrorType errorType) {
         super(message);
         this.errorType = errorType;
     }
 
-    /**
-     * Reports whether this failure was caused by an unrecognized command.
-     *
-     * @return true if the command name itself was invalid
-     */
+    /** Returns whether this exception represents an unrecognized command. */
     public boolean isWrongCommand() {
         return errorType == ErrorType.WRONG_COMMAND;
     }
 
-    /**
-     * Classifies whether the parse error came from a wrong command name or invalid parameters.
-     */
+    /** Categorizes user-input errors. */
     public enum ErrorType {
         INCORRECT_PARAMETERS,
         WRONG_COMMAND

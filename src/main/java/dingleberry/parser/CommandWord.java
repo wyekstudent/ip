@@ -13,40 +13,21 @@ public enum CommandWord {
 
     private final String keyword;
 
-    /**
-     * Creates a command word for the given keyword literal.
-     *
-     * @param keyword the lowercase command keyword entered by the user
-     */
     CommandWord(String keyword) {
         this.keyword = keyword;
     }
 
-    /**
-     * Returns the canonical keyword for this command.
-     *
-     * @return the command text used in user input
-     */
+    /** Returns the text that begins this command. */
     public String keyword() {
         return keyword;
     }
 
-    /**
-     * Checks whether a raw input string exactly matches this command, ignoring case.
-     *
-     * @param input the text to compare against the command keyword
-     * @return true if the input matches this command exactly
-     */
+    /** Returns whether the input is exactly this command's keyword. */
     public boolean isExactInput(String input) {
         return input.equalsIgnoreCase(keyword);
     }
 
-    /**
-     * Finds the command represented by a user-entered token or phrase.
-     *
-     * @param input the full raw user input
-     * @return the matching command if recognized, or null otherwise
-     */
+    /** Returns the command identified by the input, or null when none matches. */
     public static CommandWord fromInput(String input) {
         for (CommandWord command : values()) {
             if (command.isExactInput(input) || command != BYE && input.regionMatches(true, 0, command.keyword + " ", 0,

@@ -16,7 +16,7 @@ import dingleberry.model.Deadlines;
 import dingleberry.model.Events;
 import dingleberry.model.Task;
 import dingleberry.model.TaskList;
-import dingleberry.model.ToDos;
+import dingleberry.model.Todo;
 
 /**
  * Loads and saves the task list to a plain-text file at a relative path, using
@@ -26,11 +26,7 @@ import dingleberry.model.ToDos;
 public class Storage {
     private final Path filePath;
 
-    /**
-     * Creates a storage object rooted at the given relative file path.
-     *
-     * @param relativeFilePath the path to the task data file
-     */
+    /** Creates storage backed by the given relative file path. */
     public Storage(String relativeFilePath) {
         this.filePath = Path.of(relativeFilePath);
     }
@@ -39,9 +35,6 @@ public class Storage {
      * Reads the data file into a task list, creating an empty file (and its
      * parent folder) first if it doesn't already exist. Lines that don't match
      * the expected format are skipped with a warning rather than aborting load.
-     *
-     * @return the tasks recovered from disk
-     * @throws IOException if the file cannot be read or created
      */
     public ArrayList<Task> load() throws IOException {
         ArrayList<Task> tasks = new ArrayList<>();
@@ -72,9 +65,6 @@ public class Storage {
 
     /**
      * Overwrites the data file with the current task list, one task per line.
-     *
-     * @param tasks the current in-memory task list to persist
-     * @throws IOException if the file cannot be written
      */
     public void save(TaskList tasks) throws IOException {
         File parentDir = filePath.toFile().getParentFile();
@@ -89,12 +79,6 @@ public class Storage {
         }
     }
 
-    /**
-     * Reconstructs a task object from a single persisted line in the data file.
-     *
-     * @param line the serialized task entry
-     * @return the reconstructed task, or null if the line cannot be parsed
-     */
     private Task parseLine(String line) {
         String[] parts = line.split("\\s*\\|\\s*");
         try {
@@ -105,7 +89,7 @@ public class Storage {
             Task task;
             switch (type) {
             case "T":
-                task = new ToDos(description);
+                task = new Todo(description);
                 break;
             case "D":
                 task = new Deadlines(description, LocalDateTime.parse(parts[3], DateTimeFormatter.ISO_LOCAL_DATE_TIME));

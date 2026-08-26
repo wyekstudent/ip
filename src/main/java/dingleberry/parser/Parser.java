@@ -12,7 +12,7 @@ import dingleberry.command.ListCommand;
 import dingleberry.exception.DingleberryException;
 import dingleberry.model.Deadlines;
 import dingleberry.model.Events;
-import dingleberry.model.ToDos;
+import dingleberry.model.Todo;
 
 /**
  * Makes sense of a raw line of user input: identifies the {@link CommandWord},
@@ -94,11 +94,11 @@ public class Parser {
         }
     }
 
-    /** Parses a "todo &lt;description&gt;" command into a {@link ToDos}. */
-    private static ToDos parseTodo(CommandWord command, String input) throws DingleberryException {
+    /** Parses a "todo &lt;description&gt;" command into a {@link Todo}. */
+    private static Todo parseTodo(CommandWord command, String input) throws DingleberryException {
         String description = requireValue(input.length() > command.keyword().length()
                 ? input.substring(command.keyword().length() + 1) : "", command.keyword());
-        return new ToDos(description);
+        return new Todo(description);
     }
 
     /** Parses a "deadline &lt;description&gt; /by &lt;date&gt;" command into a {@link Deadlines}. */
