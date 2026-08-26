@@ -9,6 +9,7 @@ import dingleberry.ui.Ui;
 public class AddCommand extends Command {
     private final Task taskToAdd;
 
+    /** Creates a command that adds the given task. */
     public AddCommand(Task taskToAdd) {
         this.taskToAdd = taskToAdd;
     }

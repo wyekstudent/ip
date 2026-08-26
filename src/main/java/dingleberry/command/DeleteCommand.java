@@ -10,6 +10,7 @@ import dingleberry.ui.Ui;
 public class DeleteCommand extends Command {
     private final int taskNumber;
 
+    /** Creates a command that deletes the given one-based task number. */
     public DeleteCommand(int taskNumber) {
         this.taskNumber = taskNumber;
     }

@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import dingleberry.command.Command;
 import dingleberry.exception.DingleberryException;
+import dingleberry.model.TaskList;
 import dingleberry.parser.Parser;
 import dingleberry.persistence.Storage;
-import dingleberry.model.TaskList;
 import dingleberry.ui.Ui;
 
 /**
@@ -19,6 +19,7 @@ public class Dingleberry {
     private final Storage storage;
     private TaskList tasks;
 
+    /** Creates the application and loads tasks from the given file path. */
     public Dingleberry(String filePath) {
         ui = new Ui();
         storage = new Storage(filePath);
@@ -56,6 +57,7 @@ public class Dingleberry {
         ui.showGoodbye();
     }
 
+    /** Starts Dingleberry using its default data file. */
     public static void main(String[] args) {
         new Dingleberry("./data/dingleberry.txt").run();
     }

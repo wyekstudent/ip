@@ -8,15 +8,16 @@ import java.time.format.DateTimeFormatter;
  */
 public class Deadlines extends Task {
 
-    protected LocalDateTime by;
+    private final LocalDateTime by;
 
+    /** Creates an incomplete task due at the given date and time. */
     public Deadlines(String description, LocalDateTime by) {
         super(description);
         this.by = by;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.format("[D]%s (by: %s)", super.toString(), by.format(DISPLAY_DATE_TIME_FORMAT));
     }
 

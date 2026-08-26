@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public class TaskList {
     private final ArrayList<Task> tasks;
 
+    /** Creates an empty task list. */
     public TaskList() {
         this.tasks = new ArrayList<>();
     }
@@ -19,6 +20,7 @@ public class TaskList {
         this.tasks = tasks;
     }
 
+    /** Adds a task to the end of this list. */
     public void add(Task task) {
         tasks.add(task);
     }

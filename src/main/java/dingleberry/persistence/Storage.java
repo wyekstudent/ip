@@ -16,7 +16,7 @@ import dingleberry.model.Deadlines;
 import dingleberry.model.Events;
 import dingleberry.model.Task;
 import dingleberry.model.TaskList;
-import dingleberry.model.ToDos;
+import dingleberry.model.Todo;
 
 /**
  * Loads and saves the task list to a plain-text file at a relative path, using
@@ -26,6 +26,7 @@ import dingleberry.model.ToDos;
 public class Storage {
     private final Path filePath;
 
+    /** Creates storage backed by the given relative file path. */
     public Storage(String relativeFilePath) {
         this.filePath = Path.of(relativeFilePath);
     }
@@ -88,7 +89,7 @@ public class Storage {
             Task task;
             switch (type) {
             case "T":
-                task = new ToDos(description);
+                task = new Todo(description);
                 break;
             case "D":
                 task = new Deadlines(description, LocalDateTime.parse(parts[3], DateTimeFormatter.ISO_LOCAL_DATE_TIME));
