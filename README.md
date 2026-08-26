@@ -48,3 +48,9 @@ java -jar build\libs\dingleberry.jar
 The application reads commands from standard input. For example, type `list`
 or `bye` after starting the JAR. Re-run `shadowJar` after source changes to
 create an updated JAR.
+
+Useful command examples:
+
+- `list` shows all tasks in the current list.
+- `find <keyword>` shows only tasks whose description contains `<keyword>`.
+- `bye` exits the application.

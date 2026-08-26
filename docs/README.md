@@ -28,3 +28,30 @@ expected output
 ## Feature XYZ
 
 // Feature details
+
+## Finding tasks by keyword
+
+Use this command to view only tasks that contain a specific keyword in their description.
+
+Syntax:
+
+`find <keyword>`
+
+Example:
+
+`find book`
+
+Expected behavior:
+
+- Dingleberry prints tasks in the same numbered format as `list`.
+- Only tasks with descriptions containing `book` are shown.
+- Matching is case-insensitive.
+
+Example output:
+
+```
+____________________________________________________________
+1.[T][ ] return library book
+2.[D][ ] book consultation (by: Sep 10 2026 1800)
+____________________________________________________________
+```
