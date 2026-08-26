@@ -24,7 +24,13 @@ public class Parser {
     // Expected user input format for date/times, e.g. "2019-12-02 1800".
     private static final DateTimeFormatter INPUT_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
-    /** Parses a full line of user input into an executable {@link Command}. */
+    /**
+     * Parses a full line of user input into an executable {@link Command}.
+     *
+     * @param fullCommand the raw user input to interpret
+     * @return the validated command object ready to execute
+     * @throws DingleberryException if the input is blank, unknown, or has invalid parameters
+     */
     public static Command parse(String fullCommand) throws DingleberryException {
         if (fullCommand.isBlank()) {
             throw new DingleberryException("Please give me a command or a task description.");
@@ -57,14 +63,27 @@ public class Parser {
         }
     }
 
-    /** Rejects any extra text after a command that takes no parameters, e.g. "list". */
+    /**
+     * Rejects any extra text after a command that takes no parameters, e.g. "list".
+     *
+     * @param command the command being validated
+     * @param input the full raw input line
+     * @throws DingleberryException if the command is followed by unexpected parameters
+     */
     private static void requireNoParameters(CommandWord command, String input) throws DingleberryException {
         if (!command.isExactInput(input)) {
             throw new DingleberryException("'" + command.keyword() + "' does not accept parameters.");
         }
     }
 
-    /** Parses the one-based task number following a "delete" command. */
+    /**
+     * Parses the one-based task number following a "delete" command.
+     *
+     * @param command the delete command being parsed
+     * @param input the full raw input line
+     * @return the one-based index supplied by the user
+     * @throws DingleberryException if the task number is missing or not numeric
+     */
     private static int parseTaskNumber(CommandWord command, String input) throws DingleberryException {
         String taskNumberText = input.length() > command.keyword().length()
                 ? input.substring(command.keyword().length() + 1).trim() : "";
@@ -106,6 +125,14 @@ public class Parser {
         return new Events(description, parseDateTime(fromText), parseDateTime(toText));
     }
 
+    /**
+     * Validates that a required text field is present and non-blank.
+     *
+     * @param value the candidate value to validate
+     * @param command the command name used in the error message
+     * @return the trimmed, non-empty value
+     * @throws DingleberryException if the value is blank
+     */
     private static String requireValue(String value, String command) throws DingleberryException {
         if (value.isBlank()) {
             throw new DingleberryException("The " + command + " needs a non-empty description and details.");
@@ -116,6 +143,10 @@ public class Parser {
     /**
      * Parses a date/time given by the user (expected format "yyyy-MM-dd HHmm",
      * e.g. "2019-12-02 1800") into a {@link LocalDateTime}.
+     *
+     * @param text the raw timestamp string to parse
+     * @return the parsed local date and time
+     * @throws DingleberryException if the supplied text is not in the expected format
      */
     private static LocalDateTime parseDateTime(String text) throws DingleberryException {
         try {

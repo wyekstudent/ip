@@ -15,6 +15,7 @@ public class Ui {
 
     private final Scanner scanner;
 
+    /** Creates a UI bound to standard input. */
     public Ui() {
         this.scanner = new Scanner(System.in);
     }

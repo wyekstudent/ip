@@ -1,5 +1,3 @@
-package dingleberry.exception;
-
 /**
  * Represents an invalid command or task input entered for Dingleberry.
  */
