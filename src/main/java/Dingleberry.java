@@ -1,5 +1,3 @@
-package dingleberry;
-
 import java.io.IOException;
 
 import dingleberry.command.Command;
