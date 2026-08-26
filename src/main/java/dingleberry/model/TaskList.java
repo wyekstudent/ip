@@ -38,6 +38,18 @@ public class TaskList {
         return tasks.size();
     }
 
+    /** Returns a new list containing only tasks whose text contains the keyword. */
+    public TaskList findByKeyword(String keyword) {
+        ArrayList<Task> filteredTasks = new ArrayList<>();
+        String keywordLowerCase = keyword.toLowerCase();
+        for (Task task : tasks) {
+            if (task.getDescription().toLowerCase().contains(keywordLowerCase)) {
+                filteredTasks.add(task);
+            }
+        }
+        return new TaskList(filteredTasks);
+    }
+
     /** Exposes the underlying list, e.g. for {@link Storage} to persist. */
     public ArrayList<Task> asArrayList() {
         return tasks;

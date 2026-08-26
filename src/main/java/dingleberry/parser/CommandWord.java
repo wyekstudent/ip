@@ -6,6 +6,7 @@ package dingleberry.parser;
 public enum CommandWord {
     BYE("bye"),
     LIST("list"),
+    FIND("find"),
     DELETE("delete"),
     TODO("todo"),
     DEADLINE("deadline"),
