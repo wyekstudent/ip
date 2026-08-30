@@ -9,9 +9,9 @@ class TaskListTest {
     @Test
     void findByKeyword_matchingTasks_returnsOnlyMatches() {
         TaskList taskList = new TaskList();
-        taskList.add(new ToDos("read chapter one"));
-        taskList.add(new ToDos("buy milk"));
-        taskList.add(new ToDos("read chapter two"));
+        taskList.add(new Todo("read chapter one"));
+        taskList.add(new Todo("buy milk"));
+        taskList.add(new Todo("read chapter two"));
 
         TaskList filteredTasks = taskList.findByKeyword("read");
 
@@ -23,7 +23,7 @@ class TaskListTest {
     @Test
     void findByKeyword_noMatches_returnsEmptyList() {
         TaskList taskList = new TaskList();
-        taskList.add(new ToDos("read chapter one"));
+        taskList.add(new Todo("read chapter one"));
 
         TaskList filteredTasks = taskList.findByKeyword("banana");
 
@@ -33,7 +33,7 @@ class TaskListTest {
     @Test
     void findByKeyword_ignoreCase_matchesRegardlessOfLetterCase() {
         TaskList taskList = new TaskList();
-        taskList.add(new ToDos("Read chapter one"));
+        taskList.add(new Todo("Read chapter one"));
 
         TaskList filteredTasks = taskList.findByKeyword("read");
 
