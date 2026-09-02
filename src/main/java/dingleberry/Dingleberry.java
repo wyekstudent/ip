@@ -15,16 +15,20 @@ import dingleberry.ui.Ui;
  * collaborators and drives the read-parse-execute loop in {@link #run()}.
  */
 public class Dingleberry {
+    /** Handles console input and output. */
     private final Ui ui;
+    /** Loads and saves task data. */
     private final Storage storage;
+    /** Stores the current in-memory tasks. */
     private TaskList tasks;
 
     /**
-     * Creates a new app instance that loads saved tasks from the given file path.
+    * Creates a new app instance that loads saved tasks from the given file
+    * path.
      *
      * @param filePath the path to the task data file on disk
      */
-    public Dingleberry(String filePath) {
+    public Dingleberry(final String filePath) {
         ui = new Ui();
         storage = new Storage(filePath);
         try {
@@ -35,15 +39,15 @@ public class Dingleberry {
         }
     }
 
-    /** Runs the welcome-loop-goodbye lifecycle until the user closes input or issues "bye". */
+    /** Runs the lifecycle until the user closes input or issues "bye". */
     public void run() {
         ui.showWelcome();
 
         while (ui.hasNextCommand()) {
-            String input = ui.readCommand();
+            final String input = ui.readCommand();
 
             try {
-                Command command = Parser.parse(input);
+                final Command command = Parser.parse(input);
                 command.execute(tasks, ui, storage);
                 if (command.isExit()) {
                     break;
@@ -62,11 +66,12 @@ public class Dingleberry {
     }
 
     /**
-     * Launches the application with the default data file in the project directory.
+    * Launches the application with the default data file in the project
+    * directory.
      *
      * @param args command-line arguments, currently ignored by the app
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         new Dingleberry("./data/dingleberry.txt").run();
     }
 }

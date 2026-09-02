@@ -24,17 +24,32 @@ import dingleberry.model.Todo;
  * containing folder and file automatically if they don't exist yet.
  */
 public class Storage {
+    /** Identifies the description field in persisted task records. */
+    private static final int DESCRIPTION_INDEX = 2;
+    /** Identifies the first date/time field in persisted task records. */
+    private static final int FIRST_DATE_TIME_INDEX = 3;
+    /** Identifies the second date/time field in persisted event records. */
+    private static final int SECOND_DATE_TIME_INDEX = 4;
+
+    /** Stores the data file path. */
     private final Path filePath;
 
-    /** Creates storage backed by the given relative file path. */
-    public Storage(String relativeFilePath) {
+    /**
+     * Creates storage backed by the given relative file path.
+     *
+     * @param relativeFilePath the path used for persisted task data.
+     */
+    public Storage(final String relativeFilePath) {
         this.filePath = Path.of(relativeFilePath);
     }
 
     /**
      * Reads the data file into a task list, creating an empty file (and its
      * parent folder) first if it doesn't already exist. Lines that don't match
-     * the expected format are skipped with a warning rather than aborting load.
+      * the expected format are skipped with a warning rather than aborting
+      * load.
+      *
+      * @return the tasks loaded from disk.
      */
     public ArrayList<Task> load() throws IOException {
         ArrayList<Task> tasks = new ArrayList<>();
@@ -55,7 +70,8 @@ public class Storage {
             }
             Task task = parseLine(line);
             if (task == null) {
-                System.err.println("Skipping unreadable line in data file: " + line);
+                System.err.println(
+                        "Skipping unreadable line in data file: " + line);
                 continue;
             }
             tasks.add(task);
@@ -64,14 +80,17 @@ public class Storage {
     }
 
     /**
-     * Overwrites the data file with the current task list, one task per line.
+      * Overwrites the data file with the current task list, one task per line.
+      *
+      * @param tasks the task list to write to disk.
      */
-    public void save(TaskList tasks) throws IOException {
+    public void save(final TaskList tasks) throws IOException {
         File parentDir = filePath.toFile().getParentFile();
         if (parentDir != null) {
             parentDir.mkdirs();
         }
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath.toFile()))) {
+        try (BufferedWriter writer = new BufferedWriter(
+            new FileWriter(filePath.toFile()))) {
             for (int i = 0; i < tasks.size(); i++) {
                 writer.write(tasks.get(i).toSaveFormat());
                 writer.newLine();
@@ -79,12 +98,12 @@ public class Storage {
         }
     }
 
-    private Task parseLine(String line) {
+    private Task parseLine(final String line) {
         String[] parts = line.split("\\s*\\|\\s*");
         try {
             String type = parts[0];
             boolean isDone = parts[1].equals("1");
-            String description = parts[2];
+            String description = parts[DESCRIPTION_INDEX];
 
             Task task;
             switch (type) {
@@ -92,12 +111,16 @@ public class Storage {
                 task = new Todo(description);
                 break;
             case "D":
-                task = new Deadlines(description, LocalDateTime.parse(parts[3], DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                task = new Deadlines(description, LocalDateTime.parse(
+                    parts[FIRST_DATE_TIME_INDEX],
+                    DateTimeFormatter.ISO_LOCAL_DATE_TIME));
                 break;
             case "E":
                 task = new Events(description,
-                        LocalDateTime.parse(parts[3], DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                        LocalDateTime.parse(parts[4], DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                        LocalDateTime.parse(parts[FIRST_DATE_TIME_INDEX],
+                            DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                        LocalDateTime.parse(parts[SECOND_DATE_TIME_INDEX],
+                            DateTimeFormatter.ISO_LOCAL_DATE_TIME));
                 break;
             default:
                 return null;

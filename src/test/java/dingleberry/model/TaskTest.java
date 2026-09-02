@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Test;
 /** Tests the observable behavior shared by all {@link Task} implementations. */
 class TaskTest {
     @Test
-    void task_descriptionProvided_preservesDescription() {
+    void taskDescriptionProvidedPreservesDescription() {
         Task task = new Todo("submit assignment");
 
         assertEquals("submit assignment", task.getDescription());
     }
 
     @Test
-    void markAsDone_taskNotDone_marksTaskDone() {
+    void markAsDoneTaskNotDoneMarksTaskDone() {
         Task task = new Todo("submit assignment");
 
         task.markAsDone();
@@ -26,7 +26,7 @@ class TaskTest {
     }
 
     @Test
-    void markAsDone_alreadyDone_remainsDone() {
+    void markAsDoneAlreadyDoneRemainsDone() {
         Task task = new Todo("submit assignment");
         task.markAsDone();
 
@@ -37,7 +37,7 @@ class TaskTest {
     }
 
     @Test
-    void task_beforeMarkAsDone_isNotDone() {
+    void taskBeforeMarkAsDoneIsNotDone() {
         Task task = new Todo("submit assignment");
 
         assertFalse(task.isDone());
@@ -45,7 +45,7 @@ class TaskTest {
     }
 
     @Test
-    void unmarkDone_doneTask_marksTaskNotDone() {
+    void unmarkDoneDoneTaskMarksTaskNotDone() {
         Task task = new Todo("submit assignment");
         task.markAsDone();
 
@@ -56,7 +56,7 @@ class TaskTest {
     }
 
     @Test
-    void unmarkDone_alreadyNotDone_remainsNotDone() {
+    void unmarkDoneAlreadyNotDoneRemainsNotDone() {
         Task task = new Todo("submit assignment");
 
         task.unmarkDone();
@@ -65,14 +65,14 @@ class TaskTest {
     }
 
     @Test
-    void toString_taskNotDone_includesPendingStatusAndDescription() {
+    void toStringTaskNotDoneIncludesPendingStatusAndDescription() {
         Task task = new Todo("submit assignment");
 
         assertEquals("[T][ ] submit assignment", task.toString());
     }
 
     @Test
-    void toString_doneTask_includesCompletedStatusAndDescription() {
+    void toStringDoneTaskIncludesCompletedStatusAndDescription() {
         Task task = new Todo("submit assignment");
         task.markAsDone();
 
@@ -80,21 +80,21 @@ class TaskTest {
     }
 
     @Test
-    void toString_emptyDescription_preservesEmptyDescription() {
+    void toStringEmptyDescriptionPreservesEmptyDescription() {
         Task task = new Todo("");
 
         assertEquals("[T][ ] ", task.toString());
     }
 
     @Test
-    void toSaveFormat_taskNotDone_encodesPendingStatusAndDescription() {
+    void toSaveFormatTaskNotDoneEncodesPendingStatusAndDescription() {
         Task task = new Todo("submit assignment");
 
         assertEquals("T | 0 | submit assignment", task.toSaveFormat());
     }
 
     @Test
-    void toSaveFormat_doneTask_encodesCompletedStatusAndDescription() {
+    void toSaveFormatDoneTaskEncodesCompletedStatusAndDescription() {
         Task task = new Todo("submit assignment");
         task.markAsDone();
 

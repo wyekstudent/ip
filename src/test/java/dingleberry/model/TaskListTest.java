@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 /** Tests task-list operations that work across multiple tasks. */
 class TaskListTest {
     @Test
-    void findByKeyword_matchingTasks_returnsOnlyMatches() {
+    void findByKeywordMatchingTasksReturnsOnlyMatches() {
         TaskList taskList = new TaskList();
         taskList.add(new Todo("read chapter one"));
         taskList.add(new Todo("buy milk"));
@@ -16,12 +16,14 @@ class TaskListTest {
         TaskList filteredTasks = taskList.findByKeyword("read");
 
         assertEquals(2, filteredTasks.size());
-        assertEquals("[T][ ] read chapter one", filteredTasks.get(0).toString());
-        assertEquals("[T][ ] read chapter two", filteredTasks.get(1).toString());
+        assertEquals("[T][ ] read chapter one",
+            filteredTasks.get(0).toString());
+        assertEquals("[T][ ] read chapter two",
+            filteredTasks.get(1).toString());
     }
 
     @Test
-    void findByKeyword_noMatches_returnsEmptyList() {
+    void findByKeywordNoMatchesReturnsEmptyList() {
         TaskList taskList = new TaskList();
         taskList.add(new Todo("read chapter one"));
 
@@ -31,7 +33,7 @@ class TaskListTest {
     }
 
     @Test
-    void findByKeyword_ignoreCase_matchesRegardlessOfLetterCase() {
+    void findByKeywordIgnoreCaseMatchesRegardlessOfLetterCase() {
         TaskList taskList = new TaskList();
         taskList.add(new Todo("Read chapter one"));
 
