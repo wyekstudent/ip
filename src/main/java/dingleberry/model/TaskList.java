@@ -8,6 +8,7 @@ import java.util.ArrayList;
  * manipulate a raw {@link ArrayList} directly.
  */
 public class TaskList {
+    /** Stores the ordered collection of tasks. */
     private final ArrayList<Task> tasks;
 
     /** Creates an empty task list. */
@@ -15,42 +16,76 @@ public class TaskList {
         this.tasks = new ArrayList<>();
     }
 
-    /** Wraps an already-loaded list of tasks, e.g. one read from storage. */
-    public TaskList(ArrayList<Task> tasks) {
-        this.tasks = tasks;
+    /**
+     * Wraps an already-loaded list of tasks, e.g. one read from storage.
+     *
+     * @param loadedTasks the tasks to manage.
+     */
+    public TaskList(final ArrayList<Task> loadedTasks) {
+        this.tasks = loadedTasks;
     }
 
-    /** Adds a task to the end of this list. */
-    public void add(Task task) {
+    /**
+     * Adds a task to the end of this list.
+     *
+     * @param task the task to append.
+     */
+    public void add(final Task task) {
         tasks.add(task);
     }
 
-    /** Removes and returns the task at the given zero-based index. */
-    public Task remove(int index) {
+    /**
+     * Removes and returns the task at the given zero-based index.
+     *
+     * @param index the zero-based position to remove.
+     * @return the removed task.
+     */
+    public Task remove(final int index) {
         return tasks.remove(index);
     }
 
-    public Task get(int index) {
+    /**
+     * Returns the task at the given zero-based index.
+     *
+     * @param index the zero-based position to access.
+     * @return the task at the specified position.
+     */
+    public final Task get(final int index) {
         return tasks.get(index);
     }
 
-    public int size() {
+    /**
+     * Returns the number of tasks in this list.
+     *
+     * @return the task count.
+     */
+    public final int size() {
         return tasks.size();
     }
 
-    /** Returns a new list containing only tasks whose text contains the keyword. */
-    public TaskList findByKeyword(String keyword) {
-        ArrayList<Task> filteredTasks = new ArrayList<>();
-        String keywordLowerCase = keyword.toLowerCase();
+    /**
+     * Returns tasks whose descriptions contain the keyword, ignoring case.
+     *
+     * @param keyword the text to search for.
+     * @return a list of matching tasks.
+     */
+    public TaskList findByKeyword(final String keyword) {
+        final ArrayList<Task> filteredTasks = new ArrayList<>();
+        final String keywordLowerCase = keyword.toLowerCase();
         for (Task task : tasks) {
-            if (task.getDescription().toLowerCase().contains(keywordLowerCase)) {
+                if (task.getDescription().toLowerCase()
+                    .contains(keywordLowerCase)) {
                 filteredTasks.add(task);
             }
         }
         return new TaskList(filteredTasks);
     }
 
-    /** Exposes the underlying list, e.g. for {@link Storage} to persist. */
+    /**
+     * Exposes the underlying list, e.g. for {@link Storage} to persist.
+     *
+     * @return the managed task collection.
+     */
     public ArrayList<Task> asArrayList() {
         return tasks;
     }

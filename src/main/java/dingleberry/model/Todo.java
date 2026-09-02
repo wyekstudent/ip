@@ -1,9 +1,13 @@
 package dingleberry.model;
 
 /** Represents a task without a date or time requirement. */
-public class Todo extends Task {
-    /** Creates an incomplete todo with the given description. */
-    public Todo(String description) {
+public final class Todo extends Task {
+    /**
+     * Creates an incomplete todo with the given description.
+     *
+     * @param description the user-visible todo description.
+     */
+    public Todo(final String description) {
         super(description);
     }
 

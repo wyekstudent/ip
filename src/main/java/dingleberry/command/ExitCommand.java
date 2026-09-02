@@ -4,22 +4,23 @@ import dingleberry.model.TaskList;
 import dingleberry.persistence.Storage;
 import dingleberry.ui.Ui;
 
-/** Signals that the main loop should stop; the goodbye message is printed by Dingleberry once it does. */
+/** Signals that the main loop should stop after the goodbye message prints. */
 public class ExitCommand extends Command {
     /**
-     * Performs no mutation because exiting is represented by the command's exit flag.
+    * Performs no mutation because the command's exit flag represents exiting.
      *
      * @param tasks the current task list, unchanged by this command
      * @param ui the UI used for any future output
      * @param storage the persistence layer, unchanged by this command
      */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) {
-        // Nothing to do: exiting has no effect on the task list, UI output, or storage.
+    public final void execute(final TaskList tasks, final Ui ui,
+                              final Storage storage) {
+        // Exiting has no effect on the task list, UI, or storage.
     }
 
     /**
-     * Indicates that the application should leave the main input loop after this command.
+    * Indicates that the application should leave the main input loop.
      *
      * @return true because this command terminates the program
      */
