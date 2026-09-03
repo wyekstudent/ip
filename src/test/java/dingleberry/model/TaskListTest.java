@@ -2,16 +2,40 @@ package dingleberry.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Test;
 
 /** Tests task-list operations that work across multiple tasks. */
 class TaskListTest {
     @Test
-    void findByKeywordMatchingTasksReturnsOnlyMatches() {
+    void constructorSourceListChangesDoesNotChangeTaskList() {
+        ArrayList<Task> sourceTasks = new ArrayList<>();
+        sourceTasks.add(new Todo("read chapter one"));
+        TaskList taskList = new TaskList(sourceTasks);
+
+        sourceTasks.add(new Todo("buy milk"));
+
+        assertEquals(1, taskList.size());
+    }
+
+    @Test
+    void asArrayListReturnedListChangesDoesNotChangeTaskList() {
         TaskList taskList = new TaskList();
         taskList.add(new Todo("read chapter one"));
-        taskList.add(new Todo("buy milk"));
-        taskList.add(new Todo("read chapter two"));
+        ArrayList<Task> copiedTasks = taskList.asArrayList();
+
+        copiedTasks.add(new Todo("buy milk"));
+
+        assertEquals(1, taskList.size());
+    }
+
+    @Test
+    void findByKeywordMatchingTasksReturnsOnlyMatches() {
+        TaskList taskList = new TaskList(
+            new Todo("read chapter one"),
+            new Todo("buy milk"),
+            new Todo("read chapter two"));
 
         TaskList filteredTasks = taskList.findByKeyword("read");
 

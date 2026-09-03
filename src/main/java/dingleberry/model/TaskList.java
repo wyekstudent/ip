@@ -1,6 +1,7 @@
 package dingleberry.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Wraps the in-memory list of tasks and the operations Dingleberry performs
@@ -17,12 +18,21 @@ public class TaskList {
     }
 
     /**
+     * Creates a task list containing the supplied tasks in their given order.
+     *
+     * @param initialTasks the tasks to add to the new list.
+     */
+    public TaskList(final Task... initialTasks) {
+        this.tasks = new ArrayList<>(List.of(initialTasks));
+    }
+
+    /**
      * Wraps an already-loaded list of tasks, e.g. one read from storage.
      *
      * @param loadedTasks the tasks to manage.
      */
-    public TaskList(final ArrayList<Task> loadedTasks) {
-        this.tasks = loadedTasks;
+    public TaskList(final List<Task> loadedTasks) {
+        this.tasks = new ArrayList<>(loadedTasks);
     }
 
     /**
@@ -82,11 +92,11 @@ public class TaskList {
     }
 
     /**
-     * Exposes the underlying list, e.g. for {@link Storage} to persist.
+     * Returns a copy of the tasks, e.g. for {@link Storage} to persist.
      *
-     * @return the managed task collection.
+     * @return a copy of the managed task collection.
      */
     public ArrayList<Task> asArrayList() {
-        return tasks;
+        return new ArrayList<>(tasks);
     }
 }
