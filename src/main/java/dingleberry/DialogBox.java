@@ -24,15 +24,13 @@ public final class DialogBox extends HBox {
                       final String bubbleStyleClass,
                       final String iconStyleClass, final boolean isUser) {
         final Label bubble = new Label(text);
-        bubble.getStyleClass().add("bubble");
-        bubble.getStyleClass().add(bubbleStyleClass);
+                bubble.getStyleClass().addAll("bubble", bubbleStyleClass);
         bubble.setWrapText(true);
         bubble.setMaxWidth(MAX_BUBBLE_WIDTH);
         HBox.setHgrow(bubble, Priority.SOMETIMES);
 
         final Label icon = new Label(iconText);
-        icon.getStyleClass().add("icon");
-        icon.getStyleClass().add(iconStyleClass);
+                icon.getStyleClass().addAll("icon", iconStyleClass);
 
         this.getStyleClass().add("dialog-box");
         this.setSpacing(ROW_SPACING);
