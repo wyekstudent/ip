@@ -172,7 +172,8 @@ public final class Parser {
         int byIndex = input.toLowerCase().indexOf(" /by ");
         if (byIndex <= command.keyword().length()) {
             throw new DingleberryException(
-                    "A deadline needs a description and '/by <date>'.");
+                    "A deadline needs a description and '/by <date>' in the"
+                        + " format yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.");
         }
         final String description = requireValue(
                 input.substring(command.keyword().length()
@@ -199,7 +200,8 @@ public final class Parser {
         if (fromIndex <= command.keyword().length() || toIndex <= fromIndex) {
                     throw new DingleberryException(
                         "An event needs a description, '/from <time>', and"
-                            + " '/to <time>'.");
+                            + " '/to <time>' in the format yyyy-MM-dd HHmm,"
+                            + " e.g. 2019-12-02 1800.");
         }
         final String description = requireValue(
                 input.substring(command.keyword().length()

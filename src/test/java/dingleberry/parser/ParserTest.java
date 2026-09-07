@@ -126,27 +126,51 @@ class ParserTest {
 
     @Test
     void parseDeadlineWithoutDateThrowsIncorrectParameters() {
-        assertThrows(DingleberryException.class,
-            () -> Parser.parse("deadline submit report"));
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
+                () -> Parser.parse("deadline submit report"));
+
+        assertEquals(
+                "A deadline needs a description and '/by <date>' in the"
+                        + " format yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.",
+                exception.getMessage());
     }
 
     @Test
     void parseDeadlineWithInvalidDateThrowsIncorrectParameters() {
-        assertThrows(DingleberryException.class,
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
                 () -> Parser.parse("deadline submit report /by tomorrow"));
+
+        assertEquals(
+                "I couldn't understand that date/time. Please use the format"
+                        + " yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.",
+                exception.getMessage());
     }
 
     @Test
     void parseEventWithoutEndTimeThrowsIncorrectParameters() {
-        assertThrows(DingleberryException.class,
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
                 () -> Parser.parse(
                     "event team meeting /from 2026-08-25 1400"));
+
+        assertEquals(
+                "An event needs a description, '/from <time>', and '/to <time>'"
+                        + " in the format yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.",
+                exception.getMessage());
     }
 
     @Test
     void parseEventWithInvalidDateThrowsIncorrectParameters() {
-        assertThrows(DingleberryException.class,
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
                 () -> Parser.parse(
                     "event team meeting /from tomorrow /to 2026-08-25 1500"));
+
+        assertEquals(
+                "I couldn't understand that date/time. Please use the format"
+                        + " yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.",
+                exception.getMessage());
     }
 }
