@@ -81,14 +81,11 @@ public class TaskList {
      * @return a list of matching tasks.
      */
     public TaskList findByKeyword(final String keyword) {
-        final ArrayList<Task> filteredTasks = new ArrayList<>();
         final String keywordLowerCase = keyword.toLowerCase();
-        for (Task task : tasks) {
-                if (task.getDescription().toLowerCase()
-                    .contains(keywordLowerCase)) {
-                filteredTasks.add(task);
-            }
-        }
+        final List<Task> filteredTasks = tasks.stream()
+                .filter(task -> task.getDescription().toLowerCase()
+                    .contains(keywordLowerCase))
+                .toList();
         return new TaskList(filteredTasks);
     }
 
