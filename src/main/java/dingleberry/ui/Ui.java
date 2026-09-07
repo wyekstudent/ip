@@ -122,6 +122,18 @@ public class Ui {
     }
 
     /**
+     * Confirms that a task was marked as not done.
+     *
+     * @param task the task marked as not done.
+     */
+    public void showTaskUnmarked(final Task task) {
+        showLine();
+        System.out.println("OK, I've marked this task as not done yet:");
+        System.out.println("  " + task);
+        showLine();
+    }
+
+    /**
      * Reports an unrecognized command to the user.
      *
      * @param message the explanation of the invalid command.

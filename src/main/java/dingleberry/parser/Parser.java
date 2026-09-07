@@ -11,6 +11,7 @@ import dingleberry.command.ExitCommand;
 import dingleberry.command.FindCommand;
 import dingleberry.command.ListCommand;
 import dingleberry.command.MarkCommand;
+import dingleberry.command.UnmarkCommand;
 import dingleberry.exception.DingleberryException;
 import dingleberry.model.Deadlines;
 import dingleberry.model.Events;
@@ -55,7 +56,8 @@ public final class Parser {
         if (commandWord == null) {
             throw new DingleberryException(
                         "I don't recognize that command. Use 'todo', 'list',"
-                            + " 'mark', 'delete', 'deadline', or 'event'.",
+                            + " 'mark', 'unmark', 'delete', 'deadline',"
+                            + " or 'event'.",
                     DingleberryException.ErrorType.WRONG_COMMAND);
         }
 
@@ -71,6 +73,8 @@ public final class Parser {
             return new DeleteCommand(parseTaskNumber(commandWord, fullCommand));
         case MARK:
             return new MarkCommand(parseTaskNumber(commandWord, fullCommand));
+        case UNMARK:
+            return new UnmarkCommand(parseTaskNumber(commandWord, fullCommand));
         case TODO:
             return new AddCommand(parseTodo(commandWord, fullCommand));
         case DEADLINE:
@@ -122,8 +126,8 @@ public final class Parser {
     }
 
     /**
-     * Parses the one-based task number following a command such as "delete"
-     * or "mark".
+     * Parses the one-based task number following a command such as "delete",
+     * "mark", or "unmark".
      *
      * @param command the command being parsed
      * @param input the full raw input line

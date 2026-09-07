@@ -234,6 +234,12 @@ public final class Main extends Application {
         }
 
         @Override
+        public void showTaskUnmarked(final Task task) {
+            appendMessage("OK, I've marked this task as not done yet:\n  "
+                    + task);
+        }
+
+        @Override
         public void showWrongCommandError(final String message) {
             appendMessage(
                     "Oops, Dingleberry doesn't know that command: "

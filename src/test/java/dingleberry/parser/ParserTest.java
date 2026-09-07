@@ -15,6 +15,7 @@ import dingleberry.command.ExitCommand;
 import dingleberry.command.FindCommand;
 import dingleberry.command.ListCommand;
 import dingleberry.command.MarkCommand;
+import dingleberry.command.UnmarkCommand;
 import dingleberry.exception.DingleberryException;
 
 /** Tests command recognition and validation performed by {@link Parser}. */
@@ -85,6 +86,26 @@ class ParserTest {
     void parse_markWithNonNumericNumber_throwsIncorrectParameters() {
         assertThrows(DingleberryException.class,
             () -> Parser.parse("mark one"));
+    }
+
+    @Test
+    void parse_unmarkWithTaskNumber_returnsUnmarkCommand()
+            throws DingleberryException {
+        Command command = Parser.parse("unmark 1");
+
+        assertInstanceOf(UnmarkCommand.class, command);
+        assertFalse(command.isExit());
+    }
+
+    @Test
+    void parse_unmarkWithoutNumber_throwsIncorrectParameters() {
+        assertThrows(DingleberryException.class, () -> Parser.parse("unmark"));
+    }
+
+    @Test
+    void parse_unmarkWithNonNumericNumber_throwsIncorrectParameters() {
+        assertThrows(DingleberryException.class,
+            () -> Parser.parse("unmark one"));
     }
 
     @Test
