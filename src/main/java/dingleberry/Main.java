@@ -229,6 +229,11 @@ public final class Main extends Application {
         }
 
         @Override
+        public void showTaskMarked(final Task task) {
+            appendMessage("Nice! I've marked this task as done:\n  " + task);
+        }
+
+        @Override
         public void showWrongCommandError(final String message) {
             appendMessage(
                     "Oops, Dingleberry doesn't know that command: "

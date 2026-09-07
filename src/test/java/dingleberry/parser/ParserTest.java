@@ -14,6 +14,7 @@ import dingleberry.command.DeleteCommand;
 import dingleberry.command.ExitCommand;
 import dingleberry.command.FindCommand;
 import dingleberry.command.ListCommand;
+import dingleberry.command.MarkCommand;
 import dingleberry.exception.DingleberryException;
 
 /** Tests command recognition and validation performed by {@link Parser}. */
@@ -59,11 +60,31 @@ class ParserTest {
     }
 
     @Test
-        void parseDeleteWithTaskNumberReturnsDeleteCommand()
+    void parseDeleteWithTaskNumberReturnsDeleteCommand()
             throws DingleberryException {
         Command command = Parser.parse("delete 2");
 
         assertInstanceOf(DeleteCommand.class, command);
+    }
+
+    @Test
+    void parse_markWithTaskNumber_returnsMarkCommand()
+            throws DingleberryException {
+        Command command = Parser.parse("mark 1");
+
+        assertInstanceOf(MarkCommand.class, command);
+        assertFalse(command.isExit());
+    }
+
+    @Test
+    void parse_markWithoutNumber_throwsIncorrectParameters() {
+        assertThrows(DingleberryException.class, () -> Parser.parse("mark"));
+    }
+
+    @Test
+    void parse_markWithNonNumericNumber_throwsIncorrectParameters() {
+        assertThrows(DingleberryException.class,
+            () -> Parser.parse("mark one"));
     }
 
     @Test

@@ -77,7 +77,7 @@ java -cp build\classes dingleberry.Dingleberry
 ### Input
 ```
 todo write report
-mark 1
+archive 1
 list
 bye
 ```
@@ -102,11 +102,58 @@ Got it. I've added this task:
 Now you have 1 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
-Oops, Dingleberry doesn't know that command: I don't recognize that command. Use 'todo', 'list', 'deadline', or 'event'.
+Oops, Dingleberry doesn't know that command: I don't recognize that command. Use 'todo', 'list', 'mark', 'delete', 'deadline', or 'event'.
 Please try again with the correct command and parameters.
 ____________________________________________________________
 ____________________________________________________________
 1.[T][ ] write report
+____________________________________________________________
+Bya hope to see your berries again!
+```
+
+## Case: mark a task as done
+
+### Aim
+Verify that the mark command marks the given task as done and that list reflects the updated status.
+
+### Command
+```powershell
+java -cp build\classes dingleberry.Dingleberry
+```
+
+### Input
+```
+todo write report
+mark 1
+list
+bye
+```
+
+### Expected output
+```
+____________________________________________________________
+ ____  _             _      _                          
+|  _ \(_)_ __   __ _| | ___| |__   ___ _ __ _ __ _   _ 
+| | | | | '_ \ / _` | |/ _ \ '_ \ / _ \ '__| '__| | | |
+| |_| | | | | | | (_| | |  __/ |_) |  __/ |  | |  | |_| |
+|____/|_|_| |_|\__, |_|\___|_.__/ \___|_|  |_|   \__, |
+               |___/                              |___|
+
+Hey There! I'm Dingleberry
+What can I do for you?
+____________________________________________________________
+
+____________________________________________________________
+Got it. I've added this task:
+  [T][ ] write report
+Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Nice! I've marked this task as done:
+  [T][X] write report
+____________________________________________________________
+____________________________________________________________
+1.[T][X] write report
 ____________________________________________________________
 Bya hope to see your berries again!
 ```

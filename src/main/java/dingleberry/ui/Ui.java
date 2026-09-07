@@ -110,6 +110,18 @@ public class Ui {
     }
 
     /**
+     * Confirms that a task was marked as done.
+     *
+     * @param task the task marked as done.
+     */
+    public void showTaskMarked(final Task task) {
+        showLine();
+        System.out.println("Nice! I've marked this task as done:");
+        System.out.println("  " + task);
+        showLine();
+    }
+
+    /**
      * Reports an unrecognized command to the user.
      *
      * @param message the explanation of the invalid command.

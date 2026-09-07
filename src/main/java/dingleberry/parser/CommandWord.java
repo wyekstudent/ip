@@ -12,6 +12,8 @@ public enum CommandWord {
     FIND("find"),
     /** Represents the command that deletes one task. */
     DELETE("delete"),
+    /** Represents the command that marks one task as done. */
+    MARK("mark"),
     /** Represents the command that adds a todo. */
     TODO("todo"),
     /** Represents the command that adds a deadline. */
