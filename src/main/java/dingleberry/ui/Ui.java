@@ -74,6 +74,7 @@ public class Ui {
      */
     public void showTaskList(final TaskList tasks) {
         showLine();
+        System.out.println("Okie, here are your tasks. I counted them twice!");
         for (int i = 0; i < tasks.size(); i++) {
             System.out.printf("%d.%s\n", i + 1, tasks.get(i));
         }
@@ -88,7 +89,7 @@ public class Ui {
      */
     public void showTaskAdded(final Task task, final int totalTaskCount) {
         showLine();
-        System.out.println("Got it. I've added this task:");
+        System.out.println("Okie dokie! I've added this task:");
         System.out.println("  " + task);
         System.out.println("Now you have " + totalTaskCount
             + " tasks in the list.");
@@ -103,7 +104,8 @@ public class Ui {
      */
     public void showTaskDeleted(final Task task, final int totalTaskCount) {
         showLine();
-        System.out.println("Noted. I've removed this task: " + task);
+        System.out.println("Woops! I've removed this task before I lost it: "
+            + task);
         System.out.println("Now you have " + totalTaskCount
             + " tasks in the list");
         showLine();
@@ -116,7 +118,7 @@ public class Ui {
      */
     public void showTaskMarked(final Task task) {
         showLine();
-        System.out.println("Nice! I've marked this task as done:");
+        System.out.println("Yay! I've marked this task as done. I think:");
         System.out.println("  " + task);
         showLine();
     }
@@ -128,7 +130,7 @@ public class Ui {
      */
     public void showTaskUnmarked(final Task task) {
         showLine();
-        System.out.println("OK, I've marked this task as not done yet:");
+        System.out.println("Okie, undoing that little oops:");
         System.out.println("  " + task);
         showLine();
     }
@@ -141,7 +143,7 @@ public class Ui {
     public void showWrongCommandError(final String message) {
         showLine();
         System.out.println(
-            "Oops, Dingleberry doesn't know that command: " + message);
+            "Woops, Dingleberry doesn't know that command: " + message);
         System.out.println("Please try again with the correct command and"
             + " parameters.");
         showLine();
@@ -155,7 +157,7 @@ public class Ui {
     public void showIncorrectParametersError(final String message) {
         showLine();
         System.out.println(
-            "Oops, Dingleberry found incorrect parameters: " + message);
+            "Uh-oh, Dingleberry got tangled in those parameters: " + message);
         System.out.println("Please try again with the correct command and"
             + " parameters.");
         showLine();
@@ -168,7 +170,8 @@ public class Ui {
      */
     public void showLoadingError(final String message) {
         showLine();
-        System.out.println("Couldn't load saved tasks (" + message + ")."
+        System.out.println("Woops, I couldn't load saved tasks (" + message
+            + ")."
             + " Starting with an empty list.");
         showLine();
     }
@@ -180,7 +183,8 @@ public class Ui {
      */
     public void showSavingError(final String message) {
         showLine();
-        System.out.println("Couldn't save tasks to disk (" + message + ").");
+        System.out.println("Woops, I couldn't save tasks to disk (" + message
+            + ").");
         showLine();
     }
 

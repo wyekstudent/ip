@@ -202,7 +202,7 @@ public final class Main extends Application {
         @Override
         public void showTaskList(final TaskList tasks) {
             final StringBuilder builder = new StringBuilder();
-            builder.append("Here are your tasks:");
+            builder.append("Okie, here are your tasks. I counted them twice!");
             for (int i = 0; i < tasks.size(); i++) {
                 builder.append(System.lineSeparator())
                         .append(i + 1)
@@ -215,7 +215,7 @@ public final class Main extends Application {
         @Override
         public void showTaskAdded(final Task task,
                                   final int totalTaskCount) {
-            appendMessage("Got it. I've added this task:\n  " + task
+            appendMessage("Okie dokie! I've added this task:\n  " + task
                     + "\nNow you have " + totalTaskCount
                     + " tasks in the list.");
         }
@@ -223,50 +223,53 @@ public final class Main extends Application {
         @Override
         public void showTaskDeleted(final Task task,
                                     final int totalTaskCount) {
-            appendMessage("Noted. I've removed this task: " + task
+            appendMessage("Woops! I've removed this task before I lost it: "
+                + task
                     + "\nNow you have " + totalTaskCount
                     + " tasks in the list.");
         }
 
         @Override
         public void showTaskMarked(final Task task) {
-            appendMessage("Nice! I've marked this task as done:\n  " + task);
+            appendMessage("Yay! I've marked this task as done. I think:\n  "
+                    + task);
         }
 
         @Override
         public void showTaskUnmarked(final Task task) {
-            appendMessage("OK, I've marked this task as not done yet:\n  "
+            appendMessage("Okie, undoing that little oops:\n  "
                     + task);
         }
 
         @Override
         public void showWrongCommandError(final String message) {
             appendMessage(
-                    "Oops, Dingleberry doesn't know that command: "
+                "Woops, Dingleberry doesn't know that command: "
                             + message);
         }
 
         @Override
         public void showIncorrectParametersError(final String message) {
             appendMessage(
-                    "Oops, Dingleberry found incorrect parameters: "
+                "Uh-oh, Dingleberry got tangled in those parameters: "
                             + message);
         }
 
         @Override
         public void showLoadingError(final String message) {
-            appendMessage("Couldn't load saved tasks (" + message
+            appendMessage("Woops, I couldn't load saved tasks (" + message
                     + "). Starting with an empty list.");
         }
 
         @Override
         public void showSavingError(final String message) {
-            appendMessage("Couldn't save tasks to disk (" + message + ").");
+            appendMessage("Woops, I couldn't save tasks to disk (" + message
+                    + ").");
         }
 
         @Override
         public void showGoodbye() {
-            appendMessage("Bye! Hope to see your berries again!");
+            appendMessage("Bya hope to see your berries again!");
         }
     }
 }

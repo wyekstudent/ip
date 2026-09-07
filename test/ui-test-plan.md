@@ -39,24 +39,26 @@ What can I do for you?
 ____________________________________________________________
 
 ____________________________________________________________
-Got it. I've added this task:
+Okie dokie! I've added this task:
   [T][ ] borrow book
 Now you have 1 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
+Okie, here are your tasks. I counted them twice!
 1.[T][ ] borrow book
 ____________________________________________________________
 ____________________________________________________________
-Got it. I've added this task:
+Okie dokie! I've added this task:
   [D][ ] return book (by: Sunday)
 Now you have 2 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
-Got it. I've added this task:
+Okie dokie! I've added this task:
   [E][ ] project meeting (from: Mon 2pm to: 4pm)
 Now you have 3 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
+Okie, here are your tasks. I counted them twice!
 1.[T][ ] borrow book
 2.[D][ ] return book (by: Sunday)
 3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
@@ -97,15 +99,16 @@ What can I do for you?
 ____________________________________________________________
 
 ____________________________________________________________
-Got it. I've added this task:
+Okie dokie! I've added this task:
   [T][ ] write report
 Now you have 1 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
-Oops, Dingleberry doesn't know that command: I don't recognize that command. Use 'todo', 'list', 'mark', 'unmark', 'delete', 'deadline', or 'event'.
+Woops, Dingleberry doesn't know that command: I don't recognize that command. Use 'todo', 'list', 'mark', 'unmark', 'delete', 'deadline', or 'event'.
 Please try again with the correct command and parameters.
 ____________________________________________________________
 ____________________________________________________________
+Okie, here are your tasks. I counted them twice!
 1.[T][ ] write report
 ____________________________________________________________
 Bya hope to see your berries again!
@@ -144,15 +147,16 @@ What can I do for you?
 ____________________________________________________________
 
 ____________________________________________________________
-Got it. I've added this task:
+Okie dokie! I've added this task:
   [T][ ] write report
 Now you have 1 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
-Nice! I've marked this task as done:
+Yay! I've marked this task as done. I think:
   [T][X] write report
 ____________________________________________________________
 ____________________________________________________________
+Okie, here are your tasks. I counted them twice!
 1.[T][X] write report
 ____________________________________________________________
 Bya hope to see your berries again!
@@ -192,19 +196,20 @@ What can I do for you?
 ____________________________________________________________
 
 ____________________________________________________________
-Got it. I've added this task:
+Okie dokie! I've added this task:
   [T][ ] write report
 Now you have 1 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
-Nice! I've marked this task as done:
+Yay! I've marked this task as done. I think:
   [T][X] write report
 ____________________________________________________________
 ____________________________________________________________
-OK, I've marked this task as not done yet:
+Okie, undoing that little oops:
   [T][ ] write report
 ____________________________________________________________
 ____________________________________________________________
+Okie, here are your tasks. I counted them twice!
 1.[T][ ] write report
 ____________________________________________________________
 Bya hope to see your berries again!
