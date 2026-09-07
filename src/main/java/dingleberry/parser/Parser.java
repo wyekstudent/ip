@@ -3,7 +3,6 @@ package dingleberry.parser;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Locale;
 
 import dingleberry.command.AddCommand;
 import dingleberry.command.Command;
@@ -26,17 +25,18 @@ import dingleberry.model.Todo;
  */
 public final class Parser {
     /** Defines the accepted date/time format for deadline and event input. */
-    // Expected user input format for date/times, e.g. "2019-12-02 1800".
     private static final DateTimeFormatter INPUT_DATE_TIME_FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
-    /** Defines the length of the separator after a command keyword. */
-    private static final int PREFIX_SEPARATOR_LENGTH = 1;
-    /** Defines the literal marker used for a deadline due date. */
-    private static final String DEADLINE_BY_PREFIX = " /by ";
-    /** Defines the literal marker used for an event start time. */
+    /** Defines the separator between a command word and its arguments. */
+    private static final String COMMAND_SEPARATOR = " ";
+    /** Defines the literal prefix used by deadline commands. */
+    private static final String DEADLINE_PREFIX = " /by ";
+    /** Defines the literal prefix used by event start times. */
     private static final String EVENT_FROM_PREFIX = " /from ";
-    /** Defines the literal marker used for an event end time. */
+    /** Defines the literal prefix used by event end times. */
     private static final String EVENT_TO_PREFIX = " /to ";
+    /** Defines the example date/time text shown in user-facing errors. */
+    private static final String DATE_TIME_EXAMPLE = "2019-12-02 1800";
 
     private Parser() {
     }
@@ -58,7 +58,7 @@ public final class Parser {
         CommandWord commandWord = CommandWord.fromInput(fullCommand);
         if (commandWord == null) {
             throw new DingleberryException(
-                        "I don't recognize that command. Use 'todo', 'list',"
+                    "I don't recognize that command. Use 'todo', 'list',"
                             + " 'mark', 'unmark', 'delete', 'deadline',"
                             + " or 'event'.",
                     DingleberryException.ErrorType.WRONG_COMMAND);
@@ -99,9 +99,9 @@ public final class Parser {
      * @throws DingleberryException if the keyword is blank.
      */
     private static String parseKeyword(final CommandWord command,
-                                       final String input)
+                                      final String input)
             throws DingleberryException {
-        final String keyword = extractRemainingText(command, input);
+        String keyword = extractArgument(command, input);
         if (keyword.isBlank()) {
             throw new DingleberryException(
                     "'" + command.keyword() + "' needs a keyword.");
@@ -110,28 +110,12 @@ public final class Parser {
     }
 
     /**
-     * Extracts all text after a command keyword and its separating space.
-     *
-     * @param command the command being parsed
-     * @param input the raw user input
-     * @return the text after the command keyword, trimmed and normalized
-     */
-    private static String extractRemainingText(final CommandWord command,
-                                              final String input) {
-        if (input.length() <= command.keyword().length()) {
-            return "";
-        }
-        return input.substring(command.keyword().length()
-                + PREFIX_SEPARATOR_LENGTH).trim();
-    }
-
-    /**
-        * Rejects extra text after a command that takes no parameters, e.g.
-        * "list".
+     * Rejects extra text after a command that takes no parameters, e.g.
+     * "list".
      *
      * @param command the command being validated
      * @param input the full raw input line
-        * @throws DingleberryException if the command has unexpected parameters.
+     * @throws DingleberryException if the command has unexpected parameters.
      */
     private static void requireNoParameters(final CommandWord command,
                                             final String input)
@@ -152,9 +136,9 @@ public final class Parser {
      * @throws DingleberryException if the task number is missing or not numeric
      */
     private static int parseTaskNumber(final CommandWord command,
-                                       final String input)
+                                      final String input)
             throws DingleberryException {
-        final String taskNumberText = extractRemainingText(command, input);
+        String taskNumberText = extractArgument(command, input);
         try {
             return Integer.parseInt(taskNumberText);
         } catch (NumberFormatException e) {
@@ -174,8 +158,8 @@ public final class Parser {
     private static Todo parseTodo(final CommandWord command,
                                   final String input)
             throws DingleberryException {
-        final String description = requireValue(
-                extractRemainingText(command, input), command.keyword());
+        String description = requireValue(
+                extractArgument(command, input), command.keyword());
         return new Todo(description);
     }
 
@@ -188,22 +172,22 @@ public final class Parser {
      * @throws DingleberryException if the command has invalid details.
      */
     private static Deadlines parseDeadline(final CommandWord command,
-                                           final String input)
+                                          final String input)
             throws DingleberryException {
-        final int commandLength = command.keyword().length();
-        final int byIndex = input.toLowerCase(Locale.ROOT)
-                .indexOf(DEADLINE_BY_PREFIX);
-        if (byIndex <= commandLength) {
+        int byIndex = input.toLowerCase().indexOf(DEADLINE_PREFIX);
+        if (byIndex <= command.keyword().length()) {
             throw new DingleberryException(
                     "A deadline needs a description and '/by <date>' in the"
-                        + " format yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.");
+                            + " format yyyy-MM-dd HHmm, e.g. "
+                            + DATE_TIME_EXAMPLE + ".");
         }
-        final String description = requireValue(
-                input.substring(commandLength + PREFIX_SEPARATOR_LENGTH, byIndex)
-                        .trim(),
+
+        String description = requireValue(
+                input.substring(command.keyword().length()
+                        + COMMAND_SEPARATOR.length(), byIndex),
                 command.keyword());
-        final String dueDateText = requireValue(
-                input.substring(byIndex + DEADLINE_BY_PREFIX.length()).trim(),
+        String dueDateText = requireValue(
+                input.substring(byIndex + DEADLINE_PREFIX.length()),
                 command.keyword());
         return new Deadlines(description, parseDateTime(dueDateText));
     }
@@ -219,29 +203,46 @@ public final class Parser {
     private static Events parseEvent(final CommandWord command,
                                     final String input)
             throws DingleberryException {
-        final int commandLength = command.keyword().length();
-        final String lowerCaseInput = input.toLowerCase(Locale.ROOT);
-        final int fromIndex = lowerCaseInput.indexOf(EVENT_FROM_PREFIX);
-        final int toIndex = lowerCaseInput.indexOf(EVENT_TO_PREFIX);
-        if (fromIndex <= commandLength || toIndex <= fromIndex) {
+        String lowerCaseInput = input.toLowerCase();
+        int fromIndex = lowerCaseInput.indexOf(EVENT_FROM_PREFIX);
+        int toIndex = lowerCaseInput.indexOf(EVENT_TO_PREFIX);
+        if (fromIndex <= command.keyword().length() || toIndex <= fromIndex) {
             throw new DingleberryException(
                     "An event needs a description, '/from <time>', and"
-                        + " '/to <time>' in the format yyyy-MM-dd HHmm,"
-                        + " e.g. 2019-12-02 1800.");
+                            + " '/to <time>' in the format yyyy-MM-dd HHmm,"
+                            + " e.g. " + DATE_TIME_EXAMPLE + ".");
         }
-        final String description = requireValue(
-                input.substring(commandLength + PREFIX_SEPARATOR_LENGTH, fromIndex)
-                        .trim(),
+
+        String description = requireValue(
+                input.substring(command.keyword().length()
+                        + COMMAND_SEPARATOR.length(), fromIndex),
                 command.keyword());
-        final String fromText = requireValue(
-                input.substring(fromIndex + EVENT_FROM_PREFIX.length(), toIndex)
-                        .trim(),
+        String fromText = requireValue(
+                input.substring(fromIndex + EVENT_FROM_PREFIX.length(), toIndex),
                 command.keyword());
-        final String toText = requireValue(
-                input.substring(toIndex + EVENT_TO_PREFIX.length()).trim(),
+        String toText = requireValue(
+                input.substring(toIndex + EVENT_TO_PREFIX.length()),
                 command.keyword());
         return new Events(description, parseDateTime(fromText),
                 parseDateTime(toText));
+    }
+
+    /**
+     * Returns the trimmed text after a command keyword, or an empty string when
+     * no value follows the command.
+     *
+     * @param command the command to strip
+     * @param input the full raw input line
+     * @return the remaining argument text after the command keyword
+     */
+    private static String extractArgument(final CommandWord command,
+                                         final String input) {
+        String commandText = command.keyword() + COMMAND_SEPARATOR;
+        int startIndex = commandText.length();
+        if (input.length() <= command.keyword().length()) {
+            return "";
+        }
+        return input.substring(startIndex).trim();
     }
 
     /**
@@ -254,11 +255,11 @@ public final class Parser {
      */
     private static String requireValue(final String value, final String command)
             throws DingleberryException {
-        final String trimmedValue = value.trim();
+        String trimmedValue = value.trim();
         if (trimmedValue.isBlank()) {
             throw new DingleberryException(
                     "The " + command + " needs a non-empty description and"
-                        + " details.");
+                            + " details.");
         }
         return trimmedValue;
     }
@@ -278,8 +279,9 @@ public final class Parser {
             return LocalDateTime.parse(text.trim(), INPUT_DATE_TIME_FORMAT);
         } catch (DateTimeParseException e) {
             throw new DingleberryException(
-                        "I couldn't understand that date/time. Please use the"
-                            + " format yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.");
+                    "I couldn't understand that date/time. Please use the"
+                            + " format yyyy-MM-dd HHmm, e.g. "
+                            + DATE_TIME_EXAMPLE + ".");
         }
     }
 }

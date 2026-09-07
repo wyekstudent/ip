@@ -21,7 +21,7 @@ import dingleberry.exception.DingleberryException;
 /** Tests command recognition and validation performed by {@link Parser}. */
 class ParserTest {
     @Test
-    void parseByeReturnsExitCommand() throws DingleberryException {
+    void parse_bye_returnsExitCommand() throws DingleberryException {
         Command command = Parser.parse("bye");
 
         assertInstanceOf(ExitCommand.class, command);
@@ -29,7 +29,7 @@ class ParserTest {
     }
 
     @Test
-    void parseListReturnsListCommand() throws DingleberryException {
+    void parse_list_returnsListCommand() throws DingleberryException {
         Command command = Parser.parse("list");
 
         assertInstanceOf(ListCommand.class, command);
@@ -37,7 +37,7 @@ class ParserTest {
     }
 
     @Test
-        void parseTodoWithDescriptionReturnsAddCommand()
+    void parse_todoWithDescription_returnsAddCommand()
             throws DingleberryException {
         Command command = Parser.parse("todo read lecture notes");
 
@@ -45,23 +45,23 @@ class ParserTest {
     }
 
     @Test
-    void parseDeadlineWithDateReturnsAddCommand() throws DingleberryException {
+    void parse_deadlineWithDate_returnsAddCommand() throws DingleberryException {
         Command command = Parser.parse(
-            "deadline submit report /by 2026-08-25 1800");
+                "deadline submit report /by 2026-08-25 1800");
 
         assertInstanceOf(AddCommand.class, command);
     }
 
     @Test
-    void parseEventWithTimesReturnsAddCommand() throws DingleberryException {
+    void parse_eventWithTimes_returnsAddCommand() throws DingleberryException {
         Command command = Parser.parse(
-            "event team meeting /from 2026-08-25 1400 /to 2026-08-25 1500");
+                "event team meeting /from 2026-08-25 1400 /to 2026-08-25 1500");
 
         assertInstanceOf(AddCommand.class, command);
     }
 
     @Test
-    void parseDeleteWithTaskNumberReturnsDeleteCommand()
+    void parse_deleteWithTaskNumber_returnsDeleteCommand()
             throws DingleberryException {
         Command command = Parser.parse("delete 2");
 
@@ -85,7 +85,7 @@ class ParserTest {
     @Test
     void parse_markWithNonNumericNumber_throwsIncorrectParameters() {
         assertThrows(DingleberryException.class,
-            () -> Parser.parse("mark one"));
+                () -> Parser.parse("mark one"));
     }
 
     @Test
@@ -105,69 +105,69 @@ class ParserTest {
     @Test
     void parse_unmarkWithNonNumericNumber_throwsIncorrectParameters() {
         assertThrows(DingleberryException.class,
-            () -> Parser.parse("unmark one"));
+                () -> Parser.parse("unmark one"));
     }
 
     @Test
-    void parseFindWithKeywordReturnsFindCommand() throws DingleberryException {
+    void parse_findWithKeyword_returnsFindCommand() throws DingleberryException {
         Command command = Parser.parse("find lecture");
 
         assertInstanceOf(FindCommand.class, command);
     }
 
     @Test
-    void parseBlankInputThrowsIncorrectParameters() {
+    void parse_blankInput_throwsIncorrectParameters() {
         DingleberryException exception = assertThrows(
-            DingleberryException.class, () -> Parser.parse("   "));
+                DingleberryException.class, () -> Parser.parse("   "));
 
         assertEquals("Please give me a command or a task description.",
-            exception.getMessage());
+                exception.getMessage());
         assertFalse(exception.isWrongCommand());
     }
 
     @Test
-    void parseUnknownCommandThrowsWrongCommand() {
+    void parse_unknownCommand_throwsWrongCommand() {
         DingleberryException exception = assertThrows(
-            DingleberryException.class, () -> Parser.parse("archive notes"));
+                DingleberryException.class, () -> Parser.parse("archive notes"));
 
         assertTrue(exception.isWrongCommand());
     }
 
     @Test
-    void parseListWithParametersThrowsIncorrectParameters() {
+    void parse_listWithParameters_throwsIncorrectParameters() {
         DingleberryException exception = assertThrows(
-            DingleberryException.class, () -> Parser.parse("list now"));
+                DingleberryException.class, () -> Parser.parse("list now"));
 
         assertEquals("'list' does not accept parameters.",
-            exception.getMessage());
+                exception.getMessage());
     }
 
     @Test
-    void parseTodoWithoutDescriptionThrowsIncorrectParameters() {
+    void parse_todoWithoutDescription_throwsIncorrectParameters() {
         assertThrows(DingleberryException.class, () -> Parser.parse("todo   "));
     }
 
     @Test
-    void parseDeleteWithoutNumberThrowsIncorrectParameters() {
+    void parse_deleteWithoutNumber_throwsIncorrectParameters() {
         assertThrows(DingleberryException.class, () -> Parser.parse("delete"));
     }
 
     @Test
-    void parseDeleteWithNonNumericNumberThrowsIncorrectParameters() {
+    void parse_deleteWithNonNumericNumber_throwsIncorrectParameters() {
         assertThrows(DingleberryException.class,
-            () -> Parser.parse("delete two"));
+                () -> Parser.parse("delete two"));
     }
 
     @Test
-    void parseFindWithoutKeywordThrowsIncorrectParameters() {
+    void parse_findWithoutKeyword_throwsIncorrectParameters() {
         DingleberryException exception = assertThrows(
-            DingleberryException.class, () -> Parser.parse("find   "));
+                DingleberryException.class, () -> Parser.parse("find   "));
 
         assertEquals("'find' needs a keyword.", exception.getMessage());
     }
 
     @Test
-    void parseDeadlineWithoutDateThrowsIncorrectParameters() {
+    void parse_deadlineWithoutDate_throwsIncorrectParameters() {
         DingleberryException exception = assertThrows(
                 DingleberryException.class,
                 () -> Parser.parse("deadline submit report"));
@@ -179,7 +179,7 @@ class ParserTest {
     }
 
     @Test
-    void parseDeadlineWithInvalidDateThrowsIncorrectParameters() {
+    void parse_deadlineWithInvalidDate_throwsIncorrectParameters() {
         DingleberryException exception = assertThrows(
                 DingleberryException.class,
                 () -> Parser.parse("deadline submit report /by tomorrow"));
@@ -191,11 +191,10 @@ class ParserTest {
     }
 
     @Test
-    void parseEventWithoutEndTimeThrowsIncorrectParameters() {
+    void parse_eventWithoutEndTime_throwsIncorrectParameters() {
         DingleberryException exception = assertThrows(
                 DingleberryException.class,
-                () -> Parser.parse(
-                    "event team meeting /from 2026-08-25 1400"));
+                () -> Parser.parse("event team meeting /from 2026-08-25 1400"));
 
         assertEquals(
                 "An event needs a description, '/from <time>', and '/to <time>'"
@@ -204,11 +203,11 @@ class ParserTest {
     }
 
     @Test
-    void parseEventWithInvalidDateThrowsIncorrectParameters() {
+    void parse_eventWithInvalidDate_throwsIncorrectParameters() {
         DingleberryException exception = assertThrows(
                 DingleberryException.class,
                 () -> Parser.parse(
-                    "event team meeting /from tomorrow /to 2026-08-25 1500"));
+                        "event team meeting /from tomorrow /to 2026-08-25 1500"));
 
         assertEquals(
                 "I couldn't understand that date/time. Please use the format"
