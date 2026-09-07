@@ -22,6 +22,7 @@ public class AddCommand extends Command {
     @Override
     public final void execute(final TaskList tasks, final Ui ui,
                               final Storage storage) {
+        assert taskToAdd != null : "An add command must contain a task.";
         tasks.add(taskToAdd);
         ui.showTaskAdded(taskToAdd, tasks.size());
         saveTasks(tasks, storage, ui);

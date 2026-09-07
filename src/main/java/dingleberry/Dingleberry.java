@@ -48,6 +48,8 @@ public class Dingleberry {
 
             try {
                 final Command command = Parser.parse(input);
+                assert command != null
+                        : "Successful parsing must produce a command.";
                 command.execute(tasks, ui, storage);
                 if (command.isExit()) {
                     break;

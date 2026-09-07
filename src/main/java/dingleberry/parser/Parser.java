@@ -60,6 +60,8 @@ public final class Parser {
                             + " or 'event'.",
                     DingleberryException.ErrorType.WRONG_COMMAND);
         }
+                assert commandWord != null
+                    : "A parsed command must have a command word.";
 
         switch (commandWord) {
         case BYE:
@@ -83,6 +85,7 @@ public final class Parser {
             return new AddCommand(parseEvent(commandWord, fullCommand));
         default:
             // Unreachable: every CommandWord value is handled above.
+            assert false : "Every command word must have a parser branch.";
             throw new DingleberryException("Unhandled command: " + commandWord);
         }
     }
