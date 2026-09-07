@@ -29,7 +29,11 @@ public class UnmarkCommand extends Command {
             throw new DingleberryException(
                     "That task number is not in the list.");
         }
+        assert taskNumber - 1 >= 0 && taskNumber - 1 < tasks.size()
+            : "A validated task number must map to a valid list index.";
         final Task taskToUnmark = tasks.get(taskNumber - 1);
+        assert taskToUnmark != null
+            : "A task list must not contain null tasks.";
         taskToUnmark.unmarkDone();
         ui.showTaskUnmarked(taskToUnmark);
         saveTasks(tasks, storage, ui);

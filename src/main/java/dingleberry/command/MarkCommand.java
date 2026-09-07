@@ -29,7 +29,10 @@ public class MarkCommand extends Command {
             throw new DingleberryException(
                     "That task number is not in the list.");
         }
+        assert taskNumber - 1 >= 0 && taskNumber - 1 < tasks.size()
+            : "A validated task number must map to a valid list index.";
         final Task taskToMark = tasks.get(taskNumber - 1);
+        assert taskToMark != null : "A task list must not contain null tasks.";
         taskToMark.markAsDone();
         ui.showTaskMarked(taskToMark);
         saveTasks(tasks, storage, ui);
