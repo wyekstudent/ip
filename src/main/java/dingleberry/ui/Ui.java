@@ -11,6 +11,20 @@ import dingleberry.model.TaskList;
  * errors) to standard output.
  */
 public class Ui {
+    /** Startup banner shown when the application first opens. */
+    protected static final String WELCOME_MESSAGE = String.join("\n",
+        "____________________________________________________________",
+        " ____  _             _      _                          ",
+        "|  _ \\(_)_ __   __ _| | ___| |__   ___ _ __ _ __ _   " + "_   _ ",
+        "| | | | | '_ \\ / _` | |/ _ \\ '_ \\ / _ \\ '__| '__| | | |",
+        "| |_| | | | | | | (_| | |  __/ |_) |  __/ |  | |  | |_| |",
+        "|____/|_|_| |_|\\__, |_|\\___|_.__/ \\___|_|  |_|   \\__, |",
+        "               |___/                              |___|",
+        "",
+        "Hey There! I'm Dingleberry",
+        "What can I do for you?",
+        "____________________________________________________________",
+        "");
     /** Separates consecutive output blocks. */
     private static final String SEPARATOR =
             "____________________________________________________________";
@@ -25,20 +39,7 @@ public class Ui {
 
     /** Prints the startup banner and greeting. */
     public void showWelcome() {
-        final String banner = String.join("\n",
-            "____________________________________________________________",
-            " ____  _             _      _                          ",
-            "|  _ \\(_)_ __   __ _| | ___| |__   ___ _ __ _ __ _   " + "_   _ ",
-            "| | | | | '_ \\ / _` | |/ _ \\ '_ \\ / _ \\ '__| '__| | | |",
-            "| |_| | | | | | | (_| | |  __/ |_) |  __/ |  | |  | |_| |",
-            "|____/|_|_| |_|\\__, |_|\\___|_.__/ \\___|_|  |_|   \\__, |",
-            "               |___/                              |___|",
-            "",
-            "Hey There! I'm Dingleberry",
-            "What can I do for you?",
-            "____________________________________________________________",
-            "");
-        System.out.println(banner);
+        System.out.println(WELCOME_MESSAGE);
     }
 
     /**

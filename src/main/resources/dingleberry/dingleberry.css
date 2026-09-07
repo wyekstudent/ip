@@ -43,6 +43,11 @@
     -fx-background-color: #b5e48c;
 }
 
+.welcome-dialog .bubble {
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-max-width: 560px;
+}
+
 .icon {
     -fx-min-width: 36;
     -fx-min-height: 36;

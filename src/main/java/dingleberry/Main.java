@@ -188,7 +188,10 @@ public final class Main extends Application {
 
         @Override
         public void showWelcome() {
-            appendMessage("Hello! I'm Dingleberry.\nWhat can I do for you?");
+            final DialogBox welcomeDialog =
+                    DialogBox.getBotDialog(WELCOME_MESSAGE);
+            welcomeDialog.getStyleClass().add("welcome-dialog");
+            dialogLog.getChildren().add(welcomeDialog);
         }
 
         @Override
