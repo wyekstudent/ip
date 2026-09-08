@@ -9,6 +9,11 @@ line-end spaces, and one final newline.
 ### Aim
 Verify that todo, deadline, and event commands are added and displayed in list order.
 
+The natural-date output in this case is resolved using the system date. The
+expected output below is for 2026-09-08; update the resolved dates when running
+this exact-output case on another date. The parser regression tests are
+date-independent and cover the relative-date rules with a fixed reference date.
+
 ### Command
 ```powershell
 java -cp build\classes dingleberry.Dingleberry
@@ -49,19 +54,19 @@ Okie, here are your tasks. I counted them twice!
 ____________________________________________________________
 ____________________________________________________________
 Okie dokie! I've added this task:
-  [D][ ] return book (by: Sunday)
+  [D][ ] return book (by: Sep 13 2026, 12:00 am)
 Now you have 2 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
 Okie dokie! I've added this task:
-  [E][ ] project meeting (from: Mon 2pm to: 4pm)
+  [E][ ] project meeting (from: Sep 14 2026, 2:00 pm to: Sep 14 2026, 4:00 pm)
 Now you have 3 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
 Okie, here are your tasks. I counted them twice!
 1.[T][ ] borrow book
-2.[D][ ] return book (by: Sunday)
-3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+2.[D][ ] return book (by: Sep 13 2026, 12:00 am)
+3.[E][ ] project meeting (from: Sep 14 2026, 2:00 pm to: Sep 14 2026, 4:00 pm)
 ____________________________________________________________
 Bya hope to see your berries again!
 ```
