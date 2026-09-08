@@ -63,8 +63,8 @@ public final class Parser {
                             + " or 'event'.",
                     DingleberryException.ErrorType.WRONG_COMMAND);
         }
-                assert commandWord != null
-                    : "A parsed command must have a command word.";
+        assert commandWord != null
+                : "A parsed command must have a command word.";
 
         switch (commandWord) {
         case BYE:
@@ -192,7 +192,8 @@ public final class Parser {
         String dueDateText = requireValue(
                 input.substring(byIndex + DEADLINE_PREFIX.length()),
                 command.keyword());
-        return new Deadlines(description, parseDateTime(dueDateText));
+        return new Deadlines(description,
+                parseDateTime(dueDateText));
     }
 
     /**
@@ -211,9 +212,10 @@ public final class Parser {
         int toIndex = lowerCaseInput.indexOf(EVENT_TO_PREFIX);
         if (fromIndex <= command.keyword().length() || toIndex <= fromIndex) {
             throw new DingleberryException(
-                    "An event needs a description, '/from <time>', and"
-                            + " '/to <time>' in the format yyyy-MM-dd HHmm,"
-                            + " e.g. " + DATE_TIME_EXAMPLE + ".");
+                    "An event needs a description, '/from <time>',"
+                            + " and '/to <time>' in the format"
+                            + " yyyy-MM-dd HHmm, e.g. " + DATE_TIME_EXAMPLE
+                            + ".");
         }
 
         String description = requireValue(
@@ -221,7 +223,8 @@ public final class Parser {
                         + COMMAND_SEPARATOR.length(), fromIndex),
                 command.keyword());
         String fromText = requireValue(
-                input.substring(fromIndex + EVENT_FROM_PREFIX.length(), toIndex),
+                input.substring(
+                        fromIndex + EVENT_FROM_PREFIX.length(), toIndex),
                 command.keyword());
         String toText = requireValue(
                 input.substring(toIndex + EVENT_TO_PREFIX.length()),
@@ -261,8 +264,8 @@ public final class Parser {
         String trimmedValue = value.trim();
         if (trimmedValue.isBlank()) {
             throw new DingleberryException(
-                    "The " + command + " needs a non-empty description and"
-                            + " details.");
+                    "The " + command + " needs a non-empty description"
+                            + " and details.");
         }
         return trimmedValue;
     }

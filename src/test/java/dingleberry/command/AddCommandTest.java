@@ -19,32 +19,48 @@ import dingleberry.ui.Ui;
 
 /** Tests adding each supported task type. */
 class AddCommandTest {
+    /** Base year used for the test dates. */
+    private static final int TEST_YEAR = 2026;
+    /** Base month used for the test dates. */
+    private static final int TEST_MONTH = 8;
+    /** Base day used for the test dates. */
+    private static final int TEST_DAY = 25;
+    /** Deadline hour used in the test fixture. */
+    private static final int DEADLINE_HOUR = 18;
+    /** Event start hour used in the test fixture. */
+    private static final int EVENT_START_HOUR = 14;
+    /** Event end hour used in the test fixture. */
+    private static final int EVENT_END_HOUR = 15;
+
     /** Redirects storage writes to a temporary folder during tests. */
     @TempDir
     private Path tempDir;
 
     @Test
-    void execute_todo_addsAndPersistsTask() throws Exception {
+    void executeTodoAddsAndPersistsTask() throws Exception {
         assertAddedTaskIsPersisted(new Todo("read lecture notes"));
     }
 
     @Test
-    void execute_deadline_addsAndPersistsTask() throws Exception {
+    void executeDeadlineAddsAndPersistsTask() throws Exception {
         assertAddedTaskIsPersisted(new Deadlines("submit report",
-            LocalDateTime.of(2026, 8, 25, 18, 0)));
+                LocalDateTime.of(TEST_YEAR, TEST_MONTH,
+                        TEST_DAY, DEADLINE_HOUR, 0)));
     }
 
     @Test
-    void execute_event_addsAndPersistsTask() throws Exception {
+    void executeEventAddsAndPersistsTask() throws Exception {
         assertAddedTaskIsPersisted(new Events("team meeting",
-            LocalDateTime.of(2026, 8, 25, 14, 0),
-            LocalDateTime.of(2026, 8, 25, 15, 0)));
+                LocalDateTime.of(TEST_YEAR, TEST_MONTH,
+                        TEST_DAY, EVENT_START_HOUR, 0),
+                LocalDateTime.of(TEST_YEAR, TEST_MONTH,
+                        TEST_DAY, EVENT_END_HOUR, 0)));
     }
 
     private void assertAddedTaskIsPersisted(final Task task) throws Exception {
         TaskList tasks = new TaskList();
         Storage storage = new Storage(tempDir.resolve("dingleberry.txt")
-            .toString());
+                .toString());
 
         new AddCommand(task).execute(tasks, new Ui(), storage);
 

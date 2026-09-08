@@ -21,11 +21,11 @@ class DeleteCommandTest {
     private Path tempDir;
 
     @Test
-    void execute_validTaskNumber_removesAndPersistsTask() throws Exception {
+    void executeValidTaskNumberRemovesAndPersistsTask() throws Exception {
         TaskList tasks = new TaskList(new Todo("read lecture notes"),
-            new Todo("submit assignment"));
+                new Todo("submit assignment"));
         Storage storage = new Storage(tempDir.resolve("dingleberry.txt")
-            .toString());
+                .toString());
 
         new DeleteCommand(1).execute(tasks, new Ui(), storage);
 
@@ -34,16 +34,16 @@ class DeleteCommandTest {
         TaskList loadedTasks = new TaskList(storage.load());
         assertEquals(1, loadedTasks.size());
         assertEquals("submit assignment",
-            loadedTasks.get(0).getDescription());
+                loadedTasks.get(0).getDescription());
     }
 
     @Test
-    void execute_outOfRangeTaskNumber_throwsException() {
+    void executeOutOfRangeTaskNumberThrowsException() {
         TaskList tasks = new TaskList(new Todo("read lecture notes"));
         Storage storage = new Storage(tempDir.resolve("dingleberry.txt")
-            .toString());
+                .toString());
 
         assertThrows(DingleberryException.class,
-            () -> new DeleteCommand(2).execute(tasks, new Ui(), storage));
+                () -> new DeleteCommand(2).execute(tasks, new Ui(), storage));
     }
 }

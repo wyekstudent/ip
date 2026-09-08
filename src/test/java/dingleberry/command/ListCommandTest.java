@@ -21,11 +21,11 @@ class ListCommandTest {
     private Path tempDir;
 
     @Test
-    void execute_tasksArePrintedInNumberedOrder() throws Exception {
+    void executeTasksArePrintedInNumberedOrder() throws Exception {
         TaskList tasks = new TaskList(new Todo("read lecture notes"),
-            new Todo("submit assignment"));
+                new Todo("submit assignment"));
         Storage storage = new Storage(tempDir.resolve("dingleberry.txt")
-            .toString());
+                .toString());
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         PrintStream originalOutput = System.out;
 

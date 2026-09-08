@@ -21,8 +21,7 @@ class MarkCommandTest {
     private Path tempDir;
 
     @Test
-    void execute_validTaskNumber_marksTaskAsDone()
-            throws DingleberryException {
+    void executeValidTaskNumberMarksTaskAsDone() throws DingleberryException {
         TaskList tasks = new TaskList(new Todo("read lecture notes"));
         Ui ui = new Ui();
         Storage storage =
@@ -34,13 +33,13 @@ class MarkCommandTest {
     }
 
     @Test
-    void execute_outOfRangeTaskNumber_throwsException() {
+    void executeOutOfRangeTaskNumberThrowsException() {
         TaskList tasks = new TaskList(new Todo("read lecture notes"));
         Ui ui = new Ui();
         Storage storage =
                 new Storage(tempDir.resolve("dingleberry.txt").toString());
 
         assertThrows(DingleberryException.class,
-            () -> new MarkCommand(2).execute(tasks, ui, storage));
+                () -> new MarkCommand(2).execute(tasks, ui, storage));
     }
 }

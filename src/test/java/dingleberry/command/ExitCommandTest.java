@@ -20,10 +20,10 @@ class ExitCommandTest {
     private Path tempDir;
 
     @Test
-    void execute_exitCommandLeavesTasksUnchanged() throws Exception {
+    void executeExitCommandLeavesTasksUnchanged() throws Exception {
         TaskList tasks = new TaskList(new Todo("read lecture notes"));
         Storage storage = new Storage(tempDir.resolve("dingleberry.txt")
-            .toString());
+                .toString());
 
         new ExitCommand().execute(tasks, new Ui(), storage);
 
