@@ -20,7 +20,7 @@ case must contain an aim, a command, input, and expected output.
 3. Build the Java application before running the cases:
    ```powershell
    New-Item -ItemType Directory -Force -Path build\classes | Out-Null
-   javac -d build\classes src\main\java\*.java
+   javac -d build\classes (Get-ChildItem -Path src\main\java -Recurse -Filter *.java).FullName
    ```
 4. Run the bundled runner from the repository root:
    ```powershell
