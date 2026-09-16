@@ -25,5 +25,10 @@ jobs:
 
       - name: Build and check with Gradle
         shell: bash
-        run: ./gradlew check
+        run: |
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            xvfb-run --auto-servernum ./gradlew check
+          else
+            ./gradlew check
+          fi
 
