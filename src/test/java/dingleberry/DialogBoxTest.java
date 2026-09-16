@@ -40,7 +40,7 @@ class DialogBoxTest {
     @Test
     void getErrorDialogAppliesErrorStyleNotSuccessStyle() {
         final DialogBox errorDialog = DialogBox.getErrorDialog(
-                "Command not understood", "bogus is not a command");
+            "Dingleberry is confused! 🤔", "bogus is not a command");
 
         final VBox card = messageCard(errorDialog);
         assertTrue(card.getStyleClass().contains("error-message"));
@@ -52,19 +52,19 @@ class DialogBoxTest {
     @Test
     void getErrorDialogKeepsHeadingAndDetailMessageVisible() {
         final DialogBox errorDialog = DialogBox.getErrorDialog(
-                "Missing or invalid details", "todo needs a description");
+            "Oopsie, something is missing! ⚠️", "todo needs a description");
 
         final VBox card = messageCard(errorDialog);
         final Label heading = (Label) card.getChildren().get(0);
         final Label detail = (Label) card.getChildren().get(1);
-        assertEquals("Missing or invalid details", heading.getText());
+        assertEquals("Oopsie, something is missing! ⚠️", heading.getText());
         assertEquals("todo needs a description", detail.getText());
     }
 
     @Test
     void getSuccessDialogAppliesSuccessStyleNotError() {
         final DialogBox successDialog = DialogBox.getSuccessDialog(
-                "Task added", "[T][ ] nice");
+            "Taskie added! 🎉", "[T][ ] nice");
 
         final VBox card = messageCard(successDialog);
         assertTrue(card.getStyleClass().contains("success-message"));
@@ -74,7 +74,7 @@ class DialogBoxTest {
     @Test
     void getInformationDialogAppliesInformationStyleNotSuccessOrError() {
         final DialogBox informationDialog = DialogBox.getInformationDialog(
-                "Your tasks", "1.[T][ ] nice");
+            "Your taskies 📋", "1.[T][ ] nice");
 
         final VBox card = messageCard(informationDialog);
         assertTrue(card.getStyleClass().contains("information-message"));

@@ -212,7 +212,7 @@ public final class DialogBox extends HBox {
      * deleted, marked, or unmarked.
      *
      * @param heading a short description of the change, such as
-     *     "Task added".
+        *     "Taskie added! 🎉".
      * @param body the confirmation details shown below the heading.
      * @return the assembled dialog row.
      */
@@ -226,7 +226,7 @@ public final class DialogBox extends HBox {
      * a task list or the welcome message.
      *
      * @param heading a short description of the reply, such as
-     *     "Your tasks".
+        *     "Your taskies 📋".
      * @param body the reply content shown below the heading.
      * @return the assembled dialog row.
      */
@@ -241,7 +241,7 @@ public final class DialogBox extends HBox {
      * ordinary reply.
      *
      * @param heading a short description of the error, such as
-     *     "Command not understood".
+        *     "Dingleberry is confused! 🤔".
      * @param message the detail message explaining what went wrong.
      * @return the assembled dialog row.
      */

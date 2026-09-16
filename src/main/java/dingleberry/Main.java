@@ -317,13 +317,13 @@ public final class Main extends Application {
                 }
                 builder.append(i + 1).append(". ").append(tasks.get(i));
             }
-            appendInformationMessage("Your tasks", builder.toString());
+            appendInformationMessage("Your taskies 📋", builder.toString());
         }
 
         @Override
         public void showTaskAdded(final Task task,
                                   final int totalTaskCount) {
-            appendSuccessMessage("Task added", task
+            appendSuccessMessage("Taskie added! 🎉", task
                     + System.lineSeparator() + "You now have "
                     + totalTaskCount + " tasks in your list.");
         }
@@ -331,29 +331,29 @@ public final class Main extends Application {
         @Override
         public void showTaskDeleted(final Task task,
                                     final int totalTaskCount) {
-            appendSuccessMessage("Task deleted", task
+            appendSuccessMessage("Taskie removed! 🗑️", task
                     + System.lineSeparator() + "You now have "
                     + totalTaskCount + " tasks in your list.");
         }
 
         @Override
         public void showTaskMarked(final Task task) {
-            appendSuccessMessage("Task completed", task.toString());
+            appendSuccessMessage("Taskie complete! ✅", task.toString());
         }
 
         @Override
         public void showTaskUnmarked(final Task task) {
-            appendSuccessMessage("Task reopened", task.toString());
+            appendSuccessMessage("Taskie reopened! 🔄", task.toString());
         }
 
         @Override
         public void showWrongCommandError(final String message) {
-            appendErrorMessage("Command not understood", message);
+            appendErrorMessage("Dingleberry is confused! 🤔", message);
         }
 
         @Override
         public void showIncorrectParametersError(final String message) {
-            appendErrorMessage("Missing or invalid details", message);
+            appendErrorMessage("Oopsie, something is missing! ⚠️", message);
         }
 
         @Override

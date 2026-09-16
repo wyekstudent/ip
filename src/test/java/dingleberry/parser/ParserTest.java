@@ -218,7 +218,8 @@ class ParserTest {
 
         assertEquals(
                 "A deadline needs a description and '/by <date>' in the"
-                        + " format yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.",
+                        + " format yyyy-MM-dd HHmm, e.g. 2019-12-02 1800,"
+                        + " or a weekday such as next Tue.",
                 exception.getMessage());
     }
 
@@ -230,7 +231,7 @@ class ParserTest {
 
         assertEquals(
                 "I couldn't understand that date/time. Use yyyy-MM-dd HHmm,"
-                        + " a weekday such as Mon or next Monday, or a time"
+                        + " a weekday such as Mon or next Tue, or a time"
                         + " such as 2:30pm.", exception.getMessage());
     }
 
@@ -244,7 +245,8 @@ class ParserTest {
         assertEquals(
                 "An event needs a description, '/from <time>',"
                         + " and '/to <time>' in the format"
-                        + " yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.",
+                        + " yyyy-MM-dd HHmm, e.g. 2019-12-02 1800,"
+                        + " or a weekday such as next Tue.",
                 exception.getMessage());
     }
 
@@ -258,7 +260,7 @@ class ParserTest {
 
         assertEquals(
                 "I couldn't understand that date/time. Use yyyy-MM-dd HHmm,"
-                        + " a weekday such as Mon or next Monday, or a time"
+                        + " a weekday such as Mon or next Tue, or a time"
                         + " such as 2:30pm.", exception.getMessage());
     }
 
