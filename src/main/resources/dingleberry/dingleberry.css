@@ -38,44 +38,32 @@
 }
 
 .dialog-box {
-    -fx-padding: 4 8 4 8;
+    -fx-padding: 2 8 2 8;
 }
 
 .bubble {
     -fx-padding: 10 14 10 14;
-    -fx-background-radius: 16;
+    -fx-background-radius: 14;
     -fx-font-size: 13px;
-    -fx-text-fill: #1e1f22;
+    -fx-text-fill: #20232b;
+    -fx-text-alignment: left;
 }
 
 .user-bubble {
-    -fx-background-color: #8ecae6;
+    -fx-background-color: #75ddea;
 }
 
 .bot-bubble {
-    -fx-background-color: #b5e48c;
+    -fx-background-color: #f6f1ff;
+    -fx-line-spacing: 3;
 }
 
 .welcome-dialog .bubble {
     -fx-font-family: "Consolas", "Courier New", monospace;
 }
 
-.icon {
-    -fx-min-width: 36;
-    -fx-min-height: 36;
-    -fx-max-width: 36;
-    -fx-max-height: 36;
-    -fx-background-radius: 18;
-    -fx-alignment: center;
-    -fx-font-size: 18px;
-}
-
-.user-icon {
-    -fx-background-color: #fb8500;
-}
-
-.bot-icon {
-    -fx-background-color: #6a994e;
+.bot-avatar {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 3, 0, 0, 1);
 }
 
 .input-field {
