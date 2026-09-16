@@ -63,6 +63,23 @@ public abstract class Task {
     }
 
     /**
+     * Returns whether two tasks have identical type, description, and dates.
+     *
+     * @param other the task to compare with this task.
+     * @return true when the task content matches, regardless of completion.
+     */
+    public final boolean hasSameContentAs(final Task other) {
+        if (other == null || !getClass().equals(other.getClass())) {
+            return false;
+        }
+        String thisContent = toSaveFormat().replaceFirst(" \\| [01] \\| ",
+                " | ");
+        String otherContent = other.toSaveFormat().replaceFirst(
+                " \\| [01] \\| ", " | ");
+        return thisContent.equals(otherContent);
+    }
+
+    /**
     * Encodes the fields common to every task type as "doneFlag | description"
     * for use by subclasses building their {@link #toSaveFormat()} line.
     *

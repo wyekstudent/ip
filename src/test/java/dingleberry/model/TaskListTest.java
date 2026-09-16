@@ -1,13 +1,27 @@
 package dingleberry.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
 /** Tests task-list operations that work across multiple tasks. */
 class TaskListTest {
+    /** Defines the year used by date-based task fixtures. */
+    private static final int TEST_YEAR = 2026;
+    /** Defines the month used by date-based task fixtures. */
+    private static final int TEST_MONTH = 8;
+    /** Defines the first day used by date-based task fixtures. */
+    private static final int FIRST_TEST_DAY = 25;
+    /** Defines the second day used by date-based task fixtures. */
+    private static final int SECOND_TEST_DAY = 26;
+    /** Defines the hour used by date-based task fixtures. */
+    private static final int TEST_HOUR = 18;
+
     @Test
     void constructorSourceListChangesDoesNotChangeTaskList() {
         ArrayList<Task> sourceTasks = new ArrayList<>();
@@ -65,4 +79,20 @@ class TaskListTest {
 
         assertEquals(1, filteredTasks.size());
     }
+
+        @Test
+        void containsEquivalentTaskMatchesTypeDescriptionAndDates() {
+        TaskList taskList = new TaskList(new Deadlines("submit report",
+            LocalDateTime.of(TEST_YEAR, TEST_MONTH, FIRST_TEST_DAY,
+                TEST_HOUR, 0)));
+
+        assertTrue(taskList.containsEquivalentTask(new Deadlines(
+            "submit report", LocalDateTime.of(TEST_YEAR, TEST_MONTH,
+                FIRST_TEST_DAY, TEST_HOUR, 0))));
+        assertFalse(taskList.containsEquivalentTask(new Deadlines(
+            "submit report", LocalDateTime.of(TEST_YEAR, TEST_MONTH,
+                SECOND_TEST_DAY, TEST_HOUR, 0))));
+        assertFalse(taskList.containsEquivalentTask(
+            new Todo("submit report")));
+        }
 }

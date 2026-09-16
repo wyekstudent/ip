@@ -1,5 +1,6 @@
 package dingleberry.command;
 
+import dingleberry.exception.DingleberryException;
 import dingleberry.model.Task;
 import dingleberry.model.TaskList;
 import dingleberry.persistence.Storage;
@@ -21,8 +22,12 @@ public class AddCommand extends Command {
 
     @Override
     public final void execute(final TaskList tasks, final Ui ui,
-                              final Storage storage) {
+                      final Storage storage)
+            throws DingleberryException {
         assert taskToAdd != null : "An add command must contain a task.";
+        if (tasks.containsEquivalentTask(taskToAdd)) {
+            throw new DingleberryException("That task already exists.");
+        }
         tasks.add(taskToAdd);
         ui.showTaskAdded(taskToAdd, tasks.size());
         saveTasks(tasks, storage, ui);

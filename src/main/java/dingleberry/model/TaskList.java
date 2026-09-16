@@ -46,6 +46,17 @@ public class TaskList {
     }
 
     /**
+     * Returns whether this list already contains the same task content.
+     *
+     * @param candidate the task to compare with existing tasks.
+     * @return true if a task has the same type, description, and dates.
+     */
+    public boolean containsEquivalentTask(final Task candidate) {
+        return tasks.stream()
+            .anyMatch(task -> task.hasSameContentAs(candidate));
+    }
+
+    /**
      * Removes and returns the task at the given zero-based index.
      *
      * @param index the zero-based position to remove.
