@@ -11,15 +11,19 @@ import dingleberry.persistence.Storage;
 import dingleberry.ui.Ui;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 /**
@@ -32,6 +36,15 @@ public final class Main extends Application {
     /** Location of the stylesheet applied to the chat window. */
     private static final String STYLESHEET_PATH =
             "/dingleberry/dingleberry.css";
+    /** Location of the cropped mascot artwork shown in the header. */
+    private static final String MASCOT_IMAGE_PATH =
+            "/dingleberry/dingleberry_mascot_crop.png";
+    /** Fixed height of the branded header bar, in pixels. */
+    private static final int HEADER_HEIGHT = 60;
+    /** Diameter of the circular mascot avatar in the header, in pixels. */
+    private static final int HEADER_AVATAR_SIZE = 40;
+    /** Horizontal gap between the avatar and the title block. */
+    private static final int HEADER_SPACING = 10;
     /** Vertical gap between speech bubbles in the chat log. */
     private static final int DIALOG_SPACING = 4;
     /** Padding around the chat log and the window's outer border. */
@@ -85,8 +98,7 @@ public final class Main extends Application {
     public void start(final Stage primaryStage) {
         this.stage = primaryStage;
 
-        final Label titleLabel = new Label("Dingleberry");
-        titleLabel.getStyleClass().add("title-label");
+        final HBox header = createHeader();
 
         dialogContainer.setPadding(new Insets(DIALOG_PADDING));
         dialogContainer.getStyleClass().add("dialog-container");
@@ -112,10 +124,10 @@ public final class Main extends Application {
         final BorderPane root = new BorderPane();
         root.getStyleClass().add("root");
         root.setPadding(new Insets(ROOT_PADDING));
-        root.setTop(titleLabel);
+        root.setTop(header);
         root.setCenter(chatScrollPane);
         root.setBottom(inputBox);
-        BorderPane.setMargin(titleLabel,
+        BorderPane.setMargin(header,
                 new Insets(0, 0, DIALOG_PADDING, 0));
         BorderPane.setMargin(inputBox,
                 new Insets(DIALOG_PADDING, 0, 0, 0));
@@ -135,6 +147,44 @@ public final class Main extends Application {
         primaryStage.show();
 
         chatUi.showWelcome();
+    }
+
+    /**
+     * Builds the compact branded header bar shown above the conversation:
+     * a circular mascot avatar next to the app name and a short subtitle.
+     *
+     * @return the assembled header bar.
+     */
+    private HBox createHeader() {
+        final Image mascotImage = new Image(
+                getClass().getResourceAsStream(MASCOT_IMAGE_PATH));
+        final ImageView mascotView = new ImageView(mascotImage);
+        mascotView.setFitWidth(HEADER_AVATAR_SIZE);
+        mascotView.setFitHeight(HEADER_AVATAR_SIZE);
+        mascotView.setPreserveRatio(true);
+        mascotView.setSmooth(true);
+        // Clip to a circle so the square artwork reads as a round avatar.
+        mascotView.setClip(new Circle(HEADER_AVATAR_SIZE / 2.0,
+                HEADER_AVATAR_SIZE / 2.0, HEADER_AVATAR_SIZE / 2.0));
+        mascotView.setAccessibleText("Dingleberry mascot");
+
+        final Label titleLabel = new Label("Dingleberry");
+        titleLabel.getStyleClass().add("title-label");
+
+        final Label subtitleLabel = new Label("Task assistant");
+        subtitleLabel.getStyleClass().add("subtitle-label");
+
+        final VBox titleBlock = new VBox(titleLabel, subtitleLabel);
+        titleBlock.setAlignment(Pos.CENTER_LEFT);
+
+        final HBox header = new HBox(
+                HEADER_SPACING, mascotView, titleBlock);
+        header.getStyleClass().add("header-bar");
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setMinHeight(HEADER_HEIGHT);
+        header.setPrefHeight(HEADER_HEIGHT);
+        header.setMaxHeight(HEADER_HEIGHT);
+        return header;
     }
 
     /**
