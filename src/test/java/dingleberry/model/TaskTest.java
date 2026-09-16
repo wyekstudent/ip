@@ -16,6 +16,8 @@ class TaskTest {
     private static final int TEST_MONTH = 8;
     /** Defines the day used by date-based task fixtures. */
     private static final int TEST_DAY = 25;
+    /** Defines the morning hour used by date-based task fixtures. */
+    private static final int MORNING_HOUR = 9;
     /** Defines the deadline hour used by date-based task fixtures. */
     private static final int DEADLINE_HOUR = 18;
     /** Defines the event start hour used by date-based task fixtures. */
@@ -117,6 +119,16 @@ class TaskTest {
 
         assertEquals("T | 1 | submit assignment", task.toSaveFormat());
     }
+
+        @Test
+        void deadlineFormattingMorningUsesLowercaseAm() {
+            Task task = new Deadlines("submit report",
+                LocalDateTime.of(TEST_YEAR, TEST_MONTH, TEST_DAY,
+                    MORNING_HOUR, 0));
+
+            assertEquals("[D][ ] submit report (by: Aug 25 2026, 9:00 am)",
+                task.toString());
+        }
 
         @Test
         void deadlineFormattingIncludesDisplayAndSaveDateTime() {
