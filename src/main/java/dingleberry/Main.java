@@ -63,7 +63,7 @@ public final class Main extends Application {
     /** Smallest usable window height, in pixels. */
     private static final int MIN_WINDOW_HEIGHT = 320;
     /** Compact width reserved for the send button so it never grows. */
-    private static final int SEND_BUTTON_WIDTH = 72;
+    private static final int SEND_BUTTON_WIDTH = 92;
 
     /** Stores the current in-memory task list. */
     private final TaskList tasks;
@@ -255,12 +255,29 @@ public final class Main extends Application {
         }
 
         /**
-         * Adds a bot speech bubble containing the given message.
+         * Adds a calm success card confirming a task change, with the
+         * heading and body kept as separate structured content.
          *
-         * @param message the text to display inside the bubble
+         * @param heading a short description of the change
+         * @param body the confirmation details shown below the heading
          */
-        private void appendMessage(final String message) {
-            dialogLog.getChildren().add(DialogBox.getBotDialog(message));
+        private void appendSuccessMessage(final String heading,
+                                          final String body) {
+            dialogLog.getChildren()
+                    .add(DialogBox.getSuccessDialog(heading, body));
+        }
+
+        /**
+         * Adds a calm information card for a neutral reply, with the
+         * heading and body kept as separate structured content.
+         *
+         * @param heading a short description of the reply
+         * @param body the reply content shown below the heading
+         */
+        private void appendInformationMessage(final String heading,
+                                              final String body) {
+            dialogLog.getChildren()
+                    .add(DialogBox.getInformationDialog(heading, body));
         }
 
         /**
@@ -278,8 +295,10 @@ public final class Main extends Application {
 
         @Override
         public void showWelcome() {
-            final DialogBox welcomeDialog =
-                    DialogBox.getBotDialog(WELCOME_MESSAGE);
+            final DialogBox welcomeDialog = DialogBox.getInformationDialog(
+                    "Welcome to Dingleberry", WELCOME_MESSAGE);
+            // Keeps the ASCII-art banner's spacing aligned, unlike the
+            // proportional font used by every other card.
             welcomeDialog.getStyleClass().add("welcome-dialog");
             dialogLog.getChildren().add(welcomeDialog);
         }
@@ -292,43 +311,39 @@ public final class Main extends Application {
         @Override
         public void showTaskList(final TaskList tasks) {
             final StringBuilder builder = new StringBuilder();
-            builder.append("Okie, here are your tasks. I counted them twice!");
             for (int i = 0; i < tasks.size(); i++) {
-                builder.append(System.lineSeparator())
-                        .append(i + 1)
-                        .append(". ")
-                        .append(tasks.get(i));
+                if (i > 0) {
+                    builder.append(System.lineSeparator());
+                }
+                builder.append(i + 1).append(". ").append(tasks.get(i));
             }
-            appendMessage(builder.toString());
+            appendInformationMessage("Your tasks", builder.toString());
         }
 
         @Override
         public void showTaskAdded(final Task task,
                                   final int totalTaskCount) {
-            appendMessage("Okie dokie! I've added this task:\n  " + task
-                    + "\nNow you have " + totalTaskCount
-                    + " tasks in the list.");
+            appendSuccessMessage("Task added", task
+                    + System.lineSeparator() + "You now have "
+                    + totalTaskCount + " tasks in your list.");
         }
 
         @Override
         public void showTaskDeleted(final Task task,
                                     final int totalTaskCount) {
-            appendMessage("Woops! I've removed this task before I lost it: "
-                + task
-                    + "\nNow you have " + totalTaskCount
-                    + " tasks in the list.");
+            appendSuccessMessage("Task deleted", task
+                    + System.lineSeparator() + "You now have "
+                    + totalTaskCount + " tasks in your list.");
         }
 
         @Override
         public void showTaskMarked(final Task task) {
-            appendMessage("Yay! I've marked this task as done. I think:\n  "
-                    + task);
+            appendSuccessMessage("Task completed", task.toString());
         }
 
         @Override
         public void showTaskUnmarked(final Task task) {
-            appendMessage("Okie, undoing that little oops:\n  "
-                    + task);
+            appendSuccessMessage("Task reopened", task.toString());
         }
 
         @Override
@@ -354,7 +369,8 @@ public final class Main extends Application {
 
         @Override
         public void showGoodbye() {
-            appendMessage("Bya hope to see your berries again!");
+            appendInformationMessage("Goodbye",
+                    "Bye, hope to see your berries again!");
         }
     }
 }

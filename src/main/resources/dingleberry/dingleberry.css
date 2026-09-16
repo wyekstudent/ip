@@ -58,7 +58,7 @@
     -fx-line-spacing: 3;
 }
 
-.welcome-dialog .bubble {
+.welcome-dialog .message-body {
     -fx-font-family: "Consolas", "Courier New", monospace;
 }
 
@@ -66,23 +66,56 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 3, 0, 0, 1);
 }
 
-.error-bubble {
-    -fx-background-color: #ffe1e8;
-    -fx-border-color: #d94b72;
-    -fx-border-width: 0 0 0 4;
-    -fx-background-radius: 14;
-    -fx-padding: 10 14 10 10;
+/*
+ * Shared structure for every non-user reply: a narrow accent bar plus a
+ * rounded card with a heading above its body text. Only the accent and
+ * card background colors differ between the success, information, and
+ * error variants below, so headings, body text, padding, spacing, and
+ * corner radii always stay consistent.
+ */
+.message-accent {
+    -fx-background-radius: 14 0 0 14;
 }
 
-.error-heading {
+.message-card {
+    -fx-background-radius: 0 14 14 0;
+    -fx-padding: 10 14 10 14;
+}
+
+.message-heading {
     -fx-text-fill: #20232b;
     -fx-font-weight: bold;
     -fx-font-size: 15px;
 }
 
-.error-message {
+.message-body {
     -fx-text-fill: #20232b;
-    -fx-font-size: 14px;
+    -fx-font-size: 15px;
+    -fx-line-spacing: 3;
+}
+
+.success-message.message-card {
+    -fx-background-color: #eaf9fb;
+}
+
+.success-message.message-accent {
+    -fx-background-color: #75ddea;
+}
+
+.information-message.message-card {
+    -fx-background-color: #f6f1ff;
+}
+
+.information-message.message-accent {
+    -fx-background-color: #cbb8f6;
+}
+
+.error-message.message-card {
+    -fx-background-color: #ffe1e8;
+}
+
+.error-message.message-accent {
+    -fx-background-color: #d94b72;
 }
 
 .warning-icon {

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
@@ -37,15 +38,15 @@ class DialogBoxTest {
     }
 
     @Test
-    void getErrorDialogAppliesErrorStyleNotBotStyle() {
+    void getErrorDialogAppliesErrorStyleNotSuccessStyle() {
         final DialogBox errorDialog = DialogBox.getErrorDialog(
                 "Command not understood", "bogus is not a command");
 
-        final Node card = lastChild(errorDialog);
-        assertTrue(card.getStyleClass().contains("error-bubble"));
-        assertFalse(card.getStyleClass().contains("bot-bubble"));
+        final VBox card = messageCard(errorDialog);
+        assertTrue(card.getStyleClass().contains("error-message"));
+        assertFalse(card.getStyleClass().contains("success-message"));
         assertEquals(2, errorDialog.getChildren().size(),
-                "an error row should show a warning marker plus the card");
+                "an error row should show a warning marker plus its card");
     }
 
     @Test
@@ -53,7 +54,7 @@ class DialogBoxTest {
         final DialogBox errorDialog = DialogBox.getErrorDialog(
                 "Missing or invalid details", "todo needs a description");
 
-        final VBox card = (VBox) lastChild(errorDialog);
+        final VBox card = messageCard(errorDialog);
         final Label heading = (Label) card.getChildren().get(0);
         final Label detail = (Label) card.getChildren().get(1);
         assertEquals("Missing or invalid details", heading.getText());
@@ -61,12 +62,24 @@ class DialogBoxTest {
     }
 
     @Test
-    void getBotDialogAppliesBotStyleNotError() {
-        final DialogBox botDialog = DialogBox.getBotDialog("Okie dokie!");
+    void getSuccessDialogAppliesSuccessStyleNotError() {
+        final DialogBox successDialog = DialogBox.getSuccessDialog(
+                "Task added", "[T][ ] nice");
 
-        final Node card = lastChild(botDialog);
-        assertTrue(card.getStyleClass().contains("bot-bubble"));
-        assertFalse(card.getStyleClass().contains("error-bubble"));
+        final VBox card = messageCard(successDialog);
+        assertTrue(card.getStyleClass().contains("success-message"));
+        assertFalse(card.getStyleClass().contains("error-message"));
+    }
+
+    @Test
+    void getInformationDialogAppliesInformationStyleNotSuccessOrError() {
+        final DialogBox informationDialog = DialogBox.getInformationDialog(
+                "Your tasks", "1.[T][ ] nice");
+
+        final VBox card = messageCard(informationDialog);
+        assertTrue(card.getStyleClass().contains("information-message"));
+        assertFalse(card.getStyleClass().contains("success-message"));
+        assertFalse(card.getStyleClass().contains("error-message"));
     }
 
     @Test
@@ -77,8 +90,18 @@ class DialogBoxTest {
                 "a user row should show only its bubble, with no avatar");
     }
 
-    private static Node lastChild(final DialogBox dialogBox) {
-        return dialogBox.getChildren()
+    /**
+     * Navigates to the message card nested inside a non-user dialog row's
+     * icon-plus-accent-and-card structure.
+     *
+     * @param dialogBox the non-user dialog row to inspect.
+     * @return the message card, containing the heading and body labels.
+     */
+    private static VBox messageCard(final DialogBox dialogBox) {
+        final Node lastChild = dialogBox.getChildren()
                 .get(dialogBox.getChildren().size() - 1);
+        final HBox accentAndCard = (HBox) lastChild;
+        return (VBox) accentAndCard.getChildren()
+                .get(accentAndCard.getChildren().size() - 1);
     }
 }

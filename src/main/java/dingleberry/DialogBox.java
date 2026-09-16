@@ -1,6 +1,8 @@
 package dingleberry;
 
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -12,122 +14,168 @@ import javafx.scene.shape.Circle;
 /**
  * Represents a single chat row. Each row is rendered according to an
  * explicit {@link DialogType} rather than by styling based on message
- * text: user messages are compact, right-aligned bubbles with no avatar;
- * bot messages are wider, left-aligned cards with a small mascot avatar;
- * and error messages are dedicated cards with a warning marker, a short
- * heading, and the underlying detail message, so invalid commands and
- * parameters are never confused with an ordinary bot reply.
+ * text. User messages are compact, right-aligned bubbles with no avatar.
+ * Every other message type (success, information, and error replies)
+ * shares one structural layout: a small mascot or warning icon, a narrow
+ * vertical accent bar, and a rounded card with a bold heading above its
+ * body text. Only the accent color, icon, and card background differ
+ * between calm normal replies and a visually urgent error.
  */
 public final class DialogBox extends HBox {
     /** Distinguishes the visual treatment applied to a dialog row. */
     private enum DialogType {
         /** A compact, right-aligned bubble with no avatar. */
         USER,
-        /** A wide, left-aligned card with a mascot avatar. */
-        BOT,
-        /** A wide, left-aligned card with a heading and warning marker. */
+        /** A calm cyan-accented card confirming a task change. */
+        SUCCESS,
+        /** A calm lavender-accented card for a neutral, informational
+         *  reply. */
+        INFORMATION,
+        /** An urgent pink-accented card for an invalid command or a
+         *  failure. */
         ERROR
     }
 
-    /** Location of the cropped mascot artwork shown beside bot replies. */
+    /** Location of the cropped mascot artwork shown beside normal cards. */
     private static final String MASCOT_IMAGE_PATH =
             "/dingleberry/dingleberry_mascot_crop.png";
     /** Compact marker shown beside error cards. */
     private static final String WARNING_ICON_TEXT = "\u26A0";
     /** Widest a user bubble may grow before wrapping, as a row fraction. */
     private static final double USER_MAX_WIDTH_RATIO = 0.55;
-    /** Widest a bot or error card may grow before wrapping, as a row
-     *  fraction. */
-    private static final double WIDE_MAX_WIDTH_RATIO = 0.88;
-    /** Diameter of the mascot avatar shown beside bot replies. */
-    private static final int BOT_AVATAR_SIZE = 28;
-    /** Diameter of the warning marker shown beside error cards. */
-    private static final int WARNING_ICON_SIZE = 28;
-    /** Horizontal gap between a card and its avatar or marker. */
+    /** Widest a message card may grow before wrapping, as a row fraction. */
+    private static final double CARD_MAX_WIDTH_RATIO = 0.88;
+    /** Diameter of the icon shown beside every non-user row. */
+    private static final int ICON_SIZE = 28;
+    /** Width of the vertical accent bar beside a message card. */
+    private static final int ACCENT_WIDTH = 4;
+    /** Horizontal gap between an icon and its message card. */
     private static final int ROW_SPACING = 8;
-    /** Vertical gap between an error card's heading and its message. */
-    private static final int ERROR_CARD_SPACING = 3;
-    /** Mascot artwork shared by every bot dialog row's avatar. */
+    /** Vertical gap between a card's heading and its body text. */
+    private static final int CARD_SPACING = 4;
+    /** Mascot artwork shared by every success and information row's icon. */
     private static final Image MASCOT_IMAGE = new Image(
             DialogBox.class.getResourceAsStream(MASCOT_IMAGE_PATH));
 
     private DialogBox(final DialogType type, final String heading,
                       final String text) {
-        final Region card = createCard(type, heading, text);
-        // Cap the card at a fraction of this row's width, which itself
+        this.getStyleClass().add("dialog-box");
+        this.setSpacing(ROW_SPACING);
+
+        if (type == DialogType.USER) {
+            final Label bubble = new Label(text);
+            bubble.getStyleClass().addAll("bubble", "user-bubble");
+            bubble.setWrapText(true);
+            // Cap the bubble at a fraction of this row's width, which
+            // itself stretches to match the conversation pane, so it wraps
+            // instead of overflowing as the window is resized, without
+            // forcing short messages to stretch and fill the extra space.
+            bubble.maxWidthProperty().bind(
+                    this.widthProperty().multiply(USER_MAX_WIDTH_RATIO));
+            this.setAlignment(Pos.CENTER_RIGHT);
+            this.getChildren().add(bubble);
+            return;
+        }
+
+        final HBox cardRow = createCardRow(
+                type, heading, text, this.widthProperty());
+        this.setAlignment(Pos.TOP_LEFT);
+        this.getChildren().addAll(createIcon(type), cardRow);
+    }
+
+    /**
+     * Builds the accent-bar-and-card row shared by every non-user message,
+     * keeping the heading and body as separate labels instead of one
+     * combined, sub-string-styled string.
+     *
+     * @param type the dialog type, which selects the accent and card
+     *     color.
+     * @param heading a short description of the message.
+     * @param body the message content shown below the heading.
+     * @param rowWidth the width of the enclosing dialog row, used to cap
+     *     the card so it wraps responsively instead of overflowing.
+     * @return the assembled accent-and-card row.
+     */
+    private static HBox createCardRow(final DialogType type,
+                                      final String heading,
+                                      final String body,
+                                      final ReadOnlyDoubleProperty rowWidth) {
+        final String variantStyleClass = variantStyleClass(type);
+
+        final Label headingLabel = new Label(heading);
+        headingLabel.getStyleClass().add("message-heading");
+        headingLabel.setWrapText(true);
+
+        final Label bodyLabel = new Label(body);
+        bodyLabel.getStyleClass().add("message-body");
+        bodyLabel.setWrapText(true);
+
+        final VBox card = new VBox(CARD_SPACING, headingLabel, bodyLabel);
+        card.getStyleClass().addAll("message-card", variantStyleClass);
+        // Cap the card at a fraction of the row's width, which itself
         // stretches to match the conversation pane, so it wraps instead of
         // overflowing as the window is resized, without forcing short
         // messages to stretch and fill the extra space.
-        card.maxWidthProperty().bind(this.widthProperty().multiply(
-                type == DialogType.USER
-                        ? USER_MAX_WIDTH_RATIO : WIDE_MAX_WIDTH_RATIO));
+        card.maxWidthProperty().bind(
+                rowWidth.multiply(CARD_MAX_WIDTH_RATIO));
 
-        this.getStyleClass().add("dialog-box");
-        this.setSpacing(ROW_SPACING);
-        switch (type) {
-        case USER:
-            this.setAlignment(Pos.CENTER_RIGHT);
-            this.getChildren().add(card);
-            break;
-        case ERROR:
-            this.setAlignment(Pos.TOP_LEFT);
-            this.getChildren().addAll(createWarningIcon(), card);
-            break;
-        default:
-            this.setAlignment(Pos.TOP_LEFT);
-            this.getChildren().addAll(createBotAvatar(), card);
-            break;
-        }
+        final Region accent = new Region();
+        accent.getStyleClass().addAll("message-accent", variantStyleClass);
+        accent.setMinWidth(ACCENT_WIDTH);
+        accent.setMaxWidth(ACCENT_WIDTH);
+        // HBox stretches both children to the row's height by default
+        // (fillHeight), which already matches the accent to the card's
+        // natural height; binding it to card.heightProperty() instead
+        // created a circular height feedback loop that made the whole
+        // card balloon to fill the conversation pane.
+
+        return new HBox(accent, card);
     }
 
     /**
-     * Builds the message card for the given dialog type: a plain wrapping
-     * label for user and bot messages, or a heading-plus-message card for
-     * errors.
+     * Maps a dialog type to the style class that colors its card and
+     * accent bar.
      *
-     * @param type the dialog type to render.
-     * @param heading the error heading, ignored for non-error types.
-     * @param text the message body.
-     * @return the assembled card node.
+     * @param type the dialog type to look up.
+     * @return the variant's style class name.
      */
-    private static Region createCard(final DialogType type,
-                                     final String heading,
-                                     final String text) {
-        if (type == DialogType.ERROR) {
-            final Label headingLabel = new Label(heading);
-            headingLabel.getStyleClass().add("error-heading");
-            headingLabel.setWrapText(true);
-
-            final Label messageLabel = new Label(text);
-            messageLabel.getStyleClass().add("error-message");
-            messageLabel.setWrapText(true);
-
-            final VBox card = new VBox(
-                    ERROR_CARD_SPACING, headingLabel, messageLabel);
-            card.getStyleClass().addAll("bubble", "error-bubble");
-            return card;
+    private static String variantStyleClass(final DialogType type) {
+        switch (type) {
+        case SUCCESS:
+            return "success-message";
+        case INFORMATION:
+            return "information-message";
+        default:
+            return "error-message";
         }
-
-        final Label bubble = new Label(text);
-        bubble.getStyleClass().addAll("bubble",
-                type == DialogType.USER ? "user-bubble" : "bot-bubble");
-        bubble.setWrapText(true);
-        return bubble;
     }
 
     /**
-     * Creates the small circular mascot avatar shown beside bot replies.
+     * Creates the icon shown beside a non-user row: a warning marker for
+     * errors, or the mascot avatar for calmer replies.
+     *
+     * @param type the dialog type to render an icon for.
+     * @return the assembled icon node.
+     */
+    private static Node createIcon(final DialogType type) {
+        return type == DialogType.ERROR
+                ? createWarningIcon() : createMascotIcon();
+    }
+
+    /**
+     * Creates the small circular mascot avatar shown beside success and
+     * information cards.
      *
      * @return the assembled avatar image view.
      */
-    private static ImageView createBotAvatar() {
+    private static ImageView createMascotIcon() {
         final ImageView avatar = new ImageView(MASCOT_IMAGE);
-        avatar.setFitWidth(BOT_AVATAR_SIZE);
-        avatar.setFitHeight(BOT_AVATAR_SIZE);
+        avatar.setFitWidth(ICON_SIZE);
+        avatar.setFitHeight(ICON_SIZE);
         avatar.setPreserveRatio(true);
         avatar.setSmooth(true);
-        avatar.setClip(new Circle(BOT_AVATAR_SIZE / 2.0,
-                BOT_AVATAR_SIZE / 2.0, BOT_AVATAR_SIZE / 2.0));
+        avatar.setClip(new Circle(
+                ICON_SIZE / 2.0, ICON_SIZE / 2.0, ICON_SIZE / 2.0));
         avatar.getStyleClass().add("bot-avatar");
         avatar.setAccessibleText("Dingleberry mascot");
         return avatar;
@@ -141,8 +189,8 @@ public final class DialogBox extends HBox {
     private static Label createWarningIcon() {
         final Label icon = new Label(WARNING_ICON_TEXT);
         icon.getStyleClass().add("warning-icon");
-        icon.setMinSize(WARNING_ICON_SIZE, WARNING_ICON_SIZE);
-        icon.setMaxSize(WARNING_ICON_SIZE, WARNING_ICON_SIZE);
+        icon.setMinSize(ICON_SIZE, ICON_SIZE);
+        icon.setMaxSize(ICON_SIZE, ICON_SIZE);
         icon.setAlignment(Pos.CENTER);
         icon.setAccessibleText("Warning");
         return icon;
@@ -160,20 +208,37 @@ public final class DialogBox extends HBox {
     }
 
     /**
-     * Creates a wider, left-aligned dialog row representing a chatbot
-     * response.
+     * Creates a calm, cyan-accented card confirming that a task was added,
+     * deleted, marked, or unmarked.
      *
-     * @param text the message the chatbot replied with.
+     * @param heading a short description of the change, such as
+     *     "Task added".
+     * @param body the confirmation details shown below the heading.
      * @return the assembled dialog row.
      */
-    public static DialogBox getBotDialog(final String text) {
-        return new DialogBox(DialogType.BOT, null, text);
+    public static DialogBox getSuccessDialog(final String heading,
+                                             final String body) {
+        return new DialogBox(DialogType.SUCCESS, heading, body);
+    }
+
+    /**
+     * Creates a calm, lavender-accented card for a neutral reply, such as
+     * a task list or the welcome message.
+     *
+     * @param heading a short description of the reply, such as
+     *     "Your tasks".
+     * @param body the reply content shown below the heading.
+     * @return the assembled dialog row.
+     */
+    public static DialogBox getInformationDialog(final String heading,
+                                                 final String body) {
+        return new DialogBox(DialogType.INFORMATION, heading, body);
     }
 
     /**
      * Creates a dedicated error dialog row with a warning marker, a short
      * heading, and the underlying detail message, distinct from an
-     * ordinary bot reply.
+     * ordinary reply.
      *
      * @param heading a short description of the error, such as
      *     "Command not understood".
