@@ -4,6 +4,43 @@ The test runner compiles the Java sources first, then runs each command in a
 fresh console session. Expected output is exact apart from line-ending style,
 line-end spaces, and one final newline.
 
+## Environment matrix
+
+Run the cases below on each supported operating system: Windows 11 using
+PowerShell or Command Prompt, macOS, and Linux. Build the application with the
+repository's Java 25 toolchain on every system.
+
+Run the console cases at 80x24, 120x30, and 160x40 columns by rows. Confirm
+that prompts, task descriptions, separators, and error messages do not wrap or
+overlap at any tested size.
+
+Run the exact-output cases with an English locale first. Repeat the parser and
+storage checks with at least one non-English locale, recording any intentional
+date-format differences. Locale-sensitive output must be compared against the
+documented locale rather than silently accepted as equivalent.
+
+## Manual environment checks
+
+### Unicode and storage round trip
+
+Run the application with a clean `data/dingleberry.txt` and enter a todo whose
+description contains accented letters, CJK text, an emoji, a pipe, a backslash,
+and a line break if the console supports it. Use `list`, exit, then run the
+application again and use `list`. Confirm the description is displayed in the
+same order and with the same characters in both sessions. Also run
+`StorageTest` to verify the UTF-8 and escaped-record assertions without relying
+on console encoding.
+
+### Storage failure recovery
+
+Before the check, copy `data/dingleberry.txt` to a temporary backup. Replace
+the `data` directory with a regular file, start the application, and enter
+`list` followed by `bye`. Confirm that startup reports a loading error and the
+application still reaches the empty task list and goodbye message. Restore the
+directory and data file in a cleanup step even when the check fails. Then run
+the storage failure tests and confirm no existing data is replaced after a
+save failure.
+
 ## Case: add and list task types
 
 ### Aim

@@ -1,7 +1,9 @@
 package dingleberry.command;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 
@@ -42,7 +44,27 @@ class UnmarkCommandTest {
         Storage storage =
                 new Storage(tempDir.resolve("dingleberry.txt").toString());
 
-        assertThrows(DingleberryException.class,
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
                 () -> new UnmarkCommand(2).execute(tasks, ui, storage));
+
+        assertEquals("That task number is not in the list.",
+                exception.getMessage());
+        assertFalse(tasks.get(0).isDone());
+    }
+
+    @Test
+    void executeZeroTaskNumberThrowsExceptionWithoutMutation() {
+        Todo todo = new Todo("read lecture notes");
+        todo.markAsDone();
+        TaskList tasks = new TaskList(todo);
+        Ui ui = new Ui();
+        Storage storage =
+                new Storage(tempDir.resolve("dingleberry.txt").toString());
+
+        assertThrows(DingleberryException.class,
+                () -> new UnmarkCommand(0).execute(tasks, ui, storage));
+
+        assertTrue(tasks.get(0).isDone());
     }
 }

@@ -1,6 +1,10 @@
 package dingleberry.model;
 
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Represents a task with a description and completion status.
@@ -8,7 +12,11 @@ import java.time.format.DateTimeFormatter;
 public abstract class Task {
     /** Shared format used to display date/times, e.g. "Dec 2 2019, 6:00 pm". */
     public static final DateTimeFormatter DISPLAY_DATE_TIME_FORMAT =
-            DateTimeFormatter.ofPattern("MMM d yyyy, h:mm a");
+            new DateTimeFormatterBuilder()
+                .appendPattern("MMM d yyyy, h:mm ")
+                .appendText(ChronoField.AMPM_OF_DAY,
+                    Map.of(0L, "am", 1L, "pm"))
+                .toFormatter(Locale.ENGLISH);
 
     /** Stores the user-visible description. */
     private String description;

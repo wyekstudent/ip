@@ -43,7 +43,24 @@ class DeleteCommandTest {
         Storage storage = new Storage(tempDir.resolve("dingleberry.txt")
                 .toString());
 
-        assertThrows(DingleberryException.class,
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
                 () -> new DeleteCommand(2).execute(tasks, new Ui(), storage));
+
+        assertEquals("That task number is not in the list.",
+                exception.getMessage());
+        assertEquals(1, tasks.size());
+    }
+
+    @Test
+    void executeZeroTaskNumberThrowsExceptionWithoutMutation() {
+        TaskList tasks = new TaskList(new Todo("read lecture notes"));
+        Storage storage = new Storage(tempDir.resolve("dingleberry.txt")
+                .toString());
+
+        assertThrows(DingleberryException.class,
+                () -> new DeleteCommand(0).execute(tasks, new Ui(), storage));
+
+        assertEquals(1, tasks.size());
     }
 }
