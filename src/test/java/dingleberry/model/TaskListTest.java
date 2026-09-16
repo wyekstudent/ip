@@ -21,6 +21,12 @@ class TaskListTest {
     private static final int SECOND_TEST_DAY = 26;
     /** Defines the hour used by date-based task fixtures. */
     private static final int TEST_HOUR = 18;
+    /** Defines the event start hour used by date-based task fixtures. */
+    private static final int EVENT_START_HOUR = 14;
+    /** Defines the event end hour used by date-based task fixtures. */
+    private static final int EVENT_END_HOUR = 15;
+    /** Defines the later event end hour used by date-based task fixtures. */
+    private static final int LATER_EVENT_END_HOUR = 16;
 
     @Test
     void constructorSourceListChangesDoesNotChangeTaskList() {
@@ -94,5 +100,44 @@ class TaskListTest {
                 SECOND_TEST_DAY, TEST_HOUR, 0))));
         assertFalse(taskList.containsEquivalentTask(
             new Todo("submit report")));
+        }
+
+        @Test
+        void containsEquivalentTaskIgnoresCompletionStatus() {
+        Task existingTask = new Todo("submit report");
+        existingTask.markAsDone();
+        TaskList taskList = new TaskList(existingTask);
+
+        assertTrue(taskList.containsEquivalentTask(
+            new Todo("submit report")));
+        }
+
+        @Test
+        void containsEquivalentTaskRejectsNullAndDifferentDescriptions() {
+        TaskList taskList = new TaskList(new Todo("submit report"));
+
+        assertFalse(taskList.containsEquivalentTask(null));
+        assertFalse(taskList.containsEquivalentTask(
+            new Todo("submit final report")));
+        }
+
+        @Test
+        void containsEquivalentTaskMatchesEventDates() {
+        TaskList taskList = new TaskList(new Events("team meeting",
+            LocalDateTime.of(TEST_YEAR, TEST_MONTH, FIRST_TEST_DAY,
+                EVENT_START_HOUR, 0),
+            LocalDateTime.of(TEST_YEAR, TEST_MONTH, FIRST_TEST_DAY,
+                EVENT_END_HOUR, 0)));
+
+        assertTrue(taskList.containsEquivalentTask(new Events("team meeting",
+            LocalDateTime.of(TEST_YEAR, TEST_MONTH, FIRST_TEST_DAY,
+                EVENT_START_HOUR, 0),
+            LocalDateTime.of(TEST_YEAR, TEST_MONTH, FIRST_TEST_DAY,
+                EVENT_END_HOUR, 0))));
+        assertFalse(taskList.containsEquivalentTask(new Events("team meeting",
+            LocalDateTime.of(TEST_YEAR, TEST_MONTH, FIRST_TEST_DAY,
+                EVENT_START_HOUR, 0),
+            LocalDateTime.of(TEST_YEAR, TEST_MONTH, FIRST_TEST_DAY,
+                LATER_EVENT_END_HOUR, 0))));
         }
 }

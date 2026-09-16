@@ -59,6 +59,13 @@ class ParserTest {
         assertFalse(command.isExit());
     }
 
+        @Test
+        void parseCommandKeywordIgnoresCase() throws DingleberryException {
+                Command command = Parser.parse("LIST");
+
+                assertInstanceOf(ListCommand.class, command);
+        }
+
     @Test
     void parseTodoWithDescriptionReturnsAddCommand()
             throws DingleberryException {
@@ -206,8 +213,34 @@ class ParserTest {
 
     @Test
     void parseTodoWithoutDescriptionThrowsIncorrectParameters() {
-        assertThrows(DingleberryException.class,
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
                 () -> Parser.parse("todo   "));
+
+        assertEquals("The todo needs a non-empty description and details.",
+                exception.getMessage());
+    }
+
+    @Test
+    void parseDeadlineWithoutDescriptionThrowsIncorrectParameters() {
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
+                () -> Parser.parse("deadline /by 2026-08-25 1800"));
+
+        assertEquals(
+                "The deadline needs a non-empty description and details.",
+                exception.getMessage());
+    }
+
+    @Test
+    void parseEventWithoutDescriptionThrowsIncorrectParameters() {
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
+                () -> Parser.parse("event /from 2026-08-25 1400"
+                        + " /to 2026-08-25 1500"));
+
+        assertEquals("The event needs a non-empty description and details.",
+                exception.getMessage());
     }
 
     @Test
@@ -349,6 +382,16 @@ class ParserTest {
     }
 
     @Test
+    void parseTaskWithOverflowNumberThrowsSpecificError() {
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
+                () -> Parser.parse("delete 999999999999999999999"));
+
+        assertEquals("'delete' needs a numeric task number.",
+                exception.getMessage());
+    }
+
+    @Test
     void parseDateTimeWithNaturalWeekdayReturnsNextOccurrence()
             throws DingleberryException {
         assertEquals(NEXT_MONDAY_MIDNIGHT,
@@ -373,5 +416,23 @@ class ParserTest {
                 Parser.parseDateTime("3pm", TUESDAY, MONDAY));
         assertEquals(INHERITED_TWO_THIRTY_AM,
                 Parser.parseDateTime("2:30am", TUESDAY, MONDAY));
+    }
+
+    @Test
+    void parseDateTimeWithInvalidTimeThrowsIncorrectParameters() {
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
+                () -> Parser.parseDateTime("13pm", TUESDAY, MONDAY));
+
+        assertEquals(
+                "I couldn't understand that date/time. Use yyyy-MM-dd HHmm,"
+                        + " a weekday such as Mon or next Tue, or a time"
+                        + " such as 2:30pm.", exception.getMessage());
+    }
+
+    @Test
+    void parseDateTimeTimeOnlyWithoutInheritedDateThrowsIncorrectParameters() {
+        assertThrows(DingleberryException.class,
+                () -> Parser.parseDateTime("3pm", TUESDAY, null));
     }
 }
