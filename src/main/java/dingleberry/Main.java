@@ -33,17 +33,23 @@ public final class Main extends Application {
     private static final String STYLESHEET_PATH =
             "/dingleberry/dingleberry.css";
     /** Vertical gap between speech bubbles in the chat log. */
-    private static final int DIALOG_SPACING = 6;
+    private static final int DIALOG_SPACING = 4;
     /** Padding around the chat log and the window's outer border. */
-    private static final int DIALOG_PADDING = 8;
+    private static final int DIALOG_PADDING = 6;
     /** Padding around the whole window content. */
-    private static final int ROOT_PADDING = 12;
+    private static final int ROOT_PADDING = 8;
     /** Horizontal gap between the input field and the send button. */
     private static final int INPUT_BOX_SPACING = 8;
     /** Initial window width, in pixels. */
     private static final int WINDOW_WIDTH = 720;
     /** Initial window height, in pixels. */
     private static final int WINDOW_HEIGHT = 520;
+    /** Smallest usable window width, in pixels. */
+    private static final int MIN_WINDOW_WIDTH = 400;
+    /** Smallest usable window height, in pixels. */
+    private static final int MIN_WINDOW_HEIGHT = 320;
+    /** Compact width reserved for the send button so it never grows. */
+    private static final int SEND_BUTTON_WIDTH = 72;
 
     /** Stores the current in-memory task list. */
     private final TaskList tasks;
@@ -92,6 +98,10 @@ public final class Main extends Application {
 
         final Button sendButton = new Button("Send");
         sendButton.getStyleClass().add("send-button");
+        // Fixed so the button stays compact while the input field absorbs
+        // any extra width from resizing.
+        sendButton.setMinWidth(SEND_BUTTON_WIDTH);
+        sendButton.setPrefWidth(SEND_BUTTON_WIDTH);
         inputField.setPromptText("Type a command...");
         inputField.getStyleClass().add("input-field");
         HBox.setHgrow(inputField, Priority.ALWAYS);
@@ -118,6 +128,10 @@ public final class Main extends Application {
                 getClass().getResource(STYLESHEET_PATH).toExternalForm());
         primaryStage.setTitle("Dingleberry");
         primaryStage.setScene(scene);
+        // The window is resizable by default; give it a floor so the
+        // header, conversation, and composer stay usable at small sizes.
+        primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
+        primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.show();
 
         chatUi.showWelcome();

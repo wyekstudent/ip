@@ -45,7 +45,6 @@
 
 .welcome-dialog .bubble {
     -fx-font-family: "Consolas", "Courier New", monospace;
-    -fx-max-width: 560px;
 }
 
 .icon {

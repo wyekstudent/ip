@@ -15,8 +15,8 @@ public final class DialogBox extends HBox {
     private static final String USER_ICON_TEXT = "\uD83E\uDDD1";
     /** Emoji shown inside the chatbot's icon circle, evoking a berry. */
     private static final String BOT_ICON_TEXT = "\uD83E\uDECB";
-    /** Widest a speech bubble may grow before wrapping its text. */
-    private static final double MAX_BUBBLE_WIDTH = 480;
+    /** Fraction of the row's available width a speech bubble may fill. */
+    private static final double MAX_BUBBLE_WIDTH_RATIO = 0.75;
     /** Horizontal gap between a bubble and its icon. */
     private static final int ROW_SPACING = 8;
 
@@ -26,8 +26,12 @@ public final class DialogBox extends HBox {
         final Label bubble = new Label(text);
                 bubble.getStyleClass().addAll("bubble", bubbleStyleClass);
         bubble.setWrapText(true);
-        bubble.setMaxWidth(MAX_BUBBLE_WIDTH);
         HBox.setHgrow(bubble, Priority.SOMETIMES);
+        // Cap the bubble at a fraction of this row's width, which itself
+        // stretches to match the conversation pane, so it wraps instead of
+        // overflowing as the window is resized.
+        bubble.maxWidthProperty().bind(
+                this.widthProperty().multiply(MAX_BUBBLE_WIDTH_RATIO));
 
         final Label icon = new Label(iconText);
                 icon.getStyleClass().addAll("icon", iconStyleClass);
