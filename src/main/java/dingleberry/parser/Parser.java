@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +33,8 @@ import dingleberry.model.Todo;
 public final class Parser {
     /** Defines the accepted date/time format for deadline and event input. */
     private static final DateTimeFormatter INPUT_DATE_TIME_FORMAT =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+            DateTimeFormatter.ofPattern("uuuu-MM-dd HHmm")
+                .withResolverStyle(ResolverStyle.STRICT);
     /** Matches an optional relative qualifier and a weekday name. */
     private static final Pattern WEEKDAY_PATTERN = Pattern.compile(
             "(?i)(?:(this|next)\\s+)?"
@@ -42,6 +44,9 @@ public final class Parser {
     /** Matches a twelve-hour time with an optional colon or dot separator. */
     private static final Pattern TIME_PATTERN = Pattern.compile(
             "(?i)(\\d{1,2})(?:(?::|\\.)(\\d{2}))?\\s*(am|pm)");
+    /** Finds parameter markers as complete input tokens. */
+    private static final Pattern PARAMETER_PATTERN = Pattern.compile(
+            "(?i)/(by|from|to)(?=\\s|$)");
     /** Defines the number of characters used to identify a weekday. */
     private static final int WEEKDAY_PREFIX_LENGTH = 3;
     /** Defines the number of days in a week. */
@@ -58,12 +63,6 @@ public final class Parser {
     private static final int TIME_SUFFIX_GROUP = 3;
     /** Defines the separator between a command word and its arguments. */
     private static final String COMMAND_SEPARATOR = " ";
-    /** Defines the literal prefix used by deadline commands. */
-    private static final String DEADLINE_PREFIX = " /by ";
-    /** Defines the literal prefix used by event start times. */
-    private static final String EVENT_FROM_PREFIX = " /from ";
-    /** Defines the literal prefix used by event end times. */
-    private static final String EVENT_TO_PREFIX = " /to ";
     /** Defines the example date/time text shown in user-facing errors. */
     private static final String DATE_TIME_EXAMPLE = "2019-12-02 1800";
     /** Defines the example relative weekday shown in user-facing errors. */
@@ -81,12 +80,17 @@ public final class Parser {
      */
     public static Command parse(final String fullCommand)
             throws DingleberryException {
-        if (fullCommand.isBlank()) {
+        if (fullCommand == null) {
+            throw new DingleberryException(
+                    "Please give me a command or a task description.");
+        }
+        String input = normalizeInput(fullCommand);
+        if (input.isBlank()) {
             throw new DingleberryException(
                     "Please give me a command or a task description.");
         }
 
-        CommandWord commandWord = CommandWord.fromInput(fullCommand);
+        CommandWord commandWord = CommandWord.fromInput(input);
         if (commandWord == null) {
             throw new DingleberryException(
                     "I don't recognize that command. Use 'todo', 'list',"
@@ -101,22 +105,22 @@ public final class Parser {
         case BYE:
             return new ExitCommand();
         case LIST:
-            requireNoParameters(commandWord, fullCommand);
+            requireNoParameters(commandWord, input);
             return new ListCommand();
         case FIND:
-            return new FindCommand(parseKeyword(commandWord, fullCommand));
+            return new FindCommand(parseKeyword(commandWord, input));
         case DELETE:
-            return new DeleteCommand(parseTaskNumber(commandWord, fullCommand));
+            return new DeleteCommand(parseTaskNumber(commandWord, input));
         case MARK:
-            return new MarkCommand(parseTaskNumber(commandWord, fullCommand));
+            return new MarkCommand(parseTaskNumber(commandWord, input));
         case UNMARK:
-            return new UnmarkCommand(parseTaskNumber(commandWord, fullCommand));
+            return new UnmarkCommand(parseTaskNumber(commandWord, input));
         case TODO:
-            return new AddCommand(parseTodo(commandWord, fullCommand));
+            return new AddCommand(parseTodo(commandWord, input));
         case DEADLINE:
-            return new AddCommand(parseDeadline(commandWord, fullCommand));
+            return new AddCommand(parseDeadline(commandWord, input));
         case EVENT:
-            return new AddCommand(parseEvent(commandWord, fullCommand));
+            return new AddCommand(parseEvent(commandWord, input));
         default:
             // Unreachable: every CommandWord value is handled above.
             assert false : "Every command word must have a parser branch.";
@@ -173,11 +177,22 @@ public final class Parser {
                                       final String input)
             throws DingleberryException {
         String taskNumberText = extractArgument(command, input);
-        try {
-            return Integer.parseInt(taskNumberText);
-        } catch (NumberFormatException e) {
+        if (taskNumberText.isBlank()) {
             throw new DingleberryException(
                     "'" + command.keyword() + "' needs a task number.");
+        }
+        try {
+            int taskNumber = Integer.parseInt(taskNumberText);
+            if (taskNumber < 1) {
+                throw new DingleberryException(
+                        "'" + command.keyword()
+                                + "' needs a positive task number.");
+            }
+            return taskNumber;
+        } catch (NumberFormatException e) {
+            throw new DingleberryException(
+                    "'" + command.keyword()
+                            + "' needs a numeric task number.");
         }
     }
 
@@ -208,24 +223,28 @@ public final class Parser {
     private static Deadlines parseDeadline(final CommandWord command,
                                           final String input)
             throws DingleberryException {
-        int byIndex = input.toLowerCase().indexOf(DEADLINE_PREFIX);
-        if (byIndex <= command.keyword().length()) {
+        Matcher parameterMatcher = PARAMETER_PATTERN.matcher(input);
+        if (!parameterMatcher.find()
+            || !"by".equalsIgnoreCase(parameterMatcher.group(1))
+            || parameterMatcher.find()) {
             throw new DingleberryException(
                     "A deadline needs a description and '/by <date>' in the"
                             + " format yyyy-MM-dd HHmm, e.g. "
                         + DATE_TIME_EXAMPLE + ", or a weekday such as "
                         + RELATIVE_DATE_EXAMPLE + ".");
         }
+            Matcher byMatcher = PARAMETER_PATTERN.matcher(input);
+            byMatcher.find();
+            int byIndex = byMatcher.start();
 
         String description = requireValue(
-                input.substring(command.keyword().length()
-                        + COMMAND_SEPARATOR.length(), byIndex),
+                input.substring(command.keyword().length() + 1, byIndex),
                 command.keyword());
         String dueDateText = requireValue(
-                input.substring(byIndex + DEADLINE_PREFIX.length()),
+                input.substring(byMatcher.end()),
                 command.keyword());
         return new Deadlines(description,
-            parseDateTime(dueDateText, LocalDate.now(), null));
+                parseDateTime(dueDateText, LocalDate.now(), null));
     }
 
     /**
@@ -239,10 +258,8 @@ public final class Parser {
     private static Events parseEvent(final CommandWord command,
                                     final String input)
             throws DingleberryException {
-        String lowerCaseInput = input.toLowerCase();
-        int fromIndex = lowerCaseInput.indexOf(EVENT_FROM_PREFIX);
-        int toIndex = lowerCaseInput.indexOf(EVENT_TO_PREFIX);
-        if (fromIndex <= command.keyword().length() || toIndex <= fromIndex) {
+        Matcher parameterMatcher = PARAMETER_PATTERN.matcher(input);
+        if (!parameterMatcher.find()) {
             throw new DingleberryException(
                     "An event needs a description, '/from <time>',"
                             + " and '/to <time>' in the format"
@@ -250,23 +267,63 @@ public final class Parser {
                         + ", or a weekday such as "
                         + RELATIVE_DATE_EXAMPLE + ".");
         }
+        int fromIndex = parameterMatcher.start();
+        String fromMarker = parameterMatcher.group(1).toLowerCase(Locale.ROOT);
+        if (!"from".equals(fromMarker)) {
+            if ("to".equals(fromMarker)) {
+            throw new DingleberryException(
+                "An event needs '/from <time>' before '/to <time>'.");
+            }
+            throw new DingleberryException(
+                "An event needs a description, '/from <time>',"
+                    + " and '/to <time>' in the format"
+                    + " yyyy-MM-dd HHmm, e.g. " + DATE_TIME_EXAMPLE
+                    + ", or a weekday such as "
+                    + RELATIVE_DATE_EXAMPLE + ".");
+        }
+        if (!parameterMatcher.find()) {
+            throw new DingleberryException(
+                        "An event needs a description, '/from <time>',"
+                            + " and '/to <time>' in the format"
+                            + " yyyy-MM-dd HHmm, e.g. " + DATE_TIME_EXAMPLE
+                            + ", or a weekday such as "
+                            + RELATIVE_DATE_EXAMPLE + ".");
+            }
+            int toIndex = parameterMatcher.start();
+            if (!"to".equalsIgnoreCase(parameterMatcher.group(1))
+                    || parameterMatcher.find()) {
+                    throw new DingleberryException(
+                        "An event needs '/from <time>' before '/to <time>'.");
+            }
 
         String description = requireValue(
-                input.substring(command.keyword().length()
-                        + COMMAND_SEPARATOR.length(), fromIndex),
+                input.substring(command.keyword().length() + 1, fromIndex),
                 command.keyword());
         String fromText = requireValue(
-                input.substring(
-                        fromIndex + EVENT_FROM_PREFIX.length(), toIndex),
+                input.substring(input.indexOf(' ', fromIndex) + 1, toIndex),
                 command.keyword());
         String toText = requireValue(
-                input.substring(toIndex + EVENT_TO_PREFIX.length()),
+                input.substring(input.indexOf(' ', toIndex) + 1),
                 command.keyword());
         LocalDate today = LocalDate.now();
         LocalDateTime fromDateTime = parseDateTime(fromText, today, null);
         LocalDateTime toDateTime = parseDateTime(toText, today,
             fromDateTime.toLocalDate());
+        if (!toDateTime.isAfter(fromDateTime)) {
+            throw new DingleberryException(
+                    "An event's end time must be after its start time.");
+        }
         return new Events(description, fromDateTime, toDateTime);
+    }
+
+    /**
+     * Returns input with harmless surrounding and repeated whitespace removed.
+     *
+     * @param input the raw user input.
+     * @return the normalized input.
+     */
+    private static String normalizeInput(final String input) {
+        return input.trim().replaceAll("\\s+", " ");
     }
 
     /**

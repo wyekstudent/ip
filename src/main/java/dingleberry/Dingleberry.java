@@ -15,6 +15,9 @@ import dingleberry.ui.Ui;
  * collaborators and drives the read-parse-execute loop in {@link #run()}.
  */
 public class Dingleberry {
+    /** Fallback path used when the configured storage path is invalid. */
+    private static final String FALLBACK_DATA_FILE_PATH =
+            "./data/dingleberry.txt";
     /** Handles console input and output. */
     private final Ui ui;
     /** Loads and saves task data. */
@@ -30,9 +33,20 @@ public class Dingleberry {
      */
     public Dingleberry(final String filePath) {
         ui = new Ui();
-        storage = new Storage(filePath);
+        Storage configuredStorage;
         try {
-            tasks = new TaskList(storage.load());
+            configuredStorage = new Storage(filePath);
+        } catch (IllegalArgumentException e) {
+            ui.showLoadingError(e.getMessage());
+            configuredStorage = new Storage(FALLBACK_DATA_FILE_PATH);
+        }
+        storage = configuredStorage;
+        try {
+            Storage.LoadResult loadResult = storage.loadWithReport();
+            tasks = new TaskList(loadResult.getTasks());
+            for (String warning : loadResult.getWarnings()) {
+                ui.showLoadingWarning(warning);
+            }
         } catch (IOException e) {
             ui.showLoadingError(e.getMessage());
             tasks = new TaskList();

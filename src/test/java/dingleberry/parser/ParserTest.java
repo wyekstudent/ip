@@ -67,6 +67,15 @@ class ParserTest {
         assertInstanceOf(AddCommand.class, command);
     }
 
+        @Test
+        void parseCommandWithHarmlessWhitespaceReturnsAddCommand()
+            throws DingleberryException {
+        Command command = Parser.parse(
+                "  todo   read   lecture notes  ");
+
+        assertInstanceOf(AddCommand.class, command);
+    }
+
     @Test
     void parseDeadlineWithDateReturnsAddCommand() throws DingleberryException {
         Command command = Parser.parse(
@@ -167,6 +176,16 @@ class ParserTest {
         assertFalse(exception.isWrongCommand());
     }
 
+        @Test
+        void parseNullInputThrowsIncorrectParameters() {
+                DingleberryException exception = assertThrows(
+                                DingleberryException.class,
+                                () -> Parser.parse(null));
+
+                assertEquals("Please give me a command or a task description.",
+                                exception.getMessage());
+        }
+
     @Test
     void parseUnknownCommandThrowsWrongCommand() {
         DingleberryException exception = assertThrows(
@@ -236,6 +255,28 @@ class ParserTest {
     }
 
     @Test
+    void parseDeadlineWithNonexistentDateThrowsIncorrectParameters() {
+        assertThrows(DingleberryException.class,
+                () -> Parser.parse(
+                        "deadline submit report /by 2026-02-30 1800"));
+    }
+
+    @Test
+    void parseDeadlineWithDuplicateParameterThrowsIncorrectParameters() {
+        assertThrows(DingleberryException.class,
+                () -> Parser.parse(
+                        "deadline submit report /by 2026-08-25 1800"
+                                + " /by 2026-08-26 1800"));
+    }
+
+    @Test
+    void parseDeadlineWithWrongParameterThrowsIncorrectParameters() {
+        assertThrows(DingleberryException.class,
+                () -> Parser.parse(
+                        "deadline submit report /to 2026-08-25 1800"));
+    }
+
+    @Test
     void parseEventWithoutEndTimeThrowsIncorrectParameters() {
         DingleberryException exception = assertThrows(
                 DingleberryException.class,
@@ -262,6 +303,49 @@ class ParserTest {
                 "I couldn't understand that date/time. Use yyyy-MM-dd HHmm,"
                         + " a weekday such as Mon or next Tue, or a time"
                         + " such as 2:30pm.", exception.getMessage());
+    }
+
+    @Test
+    void parseEventWithReorderedParametersThrowsIncorrectParameters() {
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
+                () -> Parser.parse(
+                        "event team meeting /to 2026-08-25 1500"
+                                + " /from 2026-08-25 1400"));
+
+        assertEquals("An event needs '/from <time>' before '/to <time>'.",
+                exception.getMessage());
+    }
+
+    @Test
+    void parseEventWithEndBeforeStartThrowsIncorrectParameters() {
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
+                () -> Parser.parse(
+                        "event team meeting /from 2026-08-25 1500"
+                                + " /to 2026-08-25 1400"));
+
+        assertEquals("An event's end time must be after its start time.",
+                exception.getMessage());
+    }
+
+    @Test
+    void parseTaskWithNonPositiveNumberThrowsSpecificError() {
+        DingleberryException exception = assertThrows(
+                DingleberryException.class, () -> Parser.parse("delete 0"));
+
+        assertEquals("'delete' needs a positive task number.",
+                exception.getMessage());
+    }
+
+    @Test
+    void parseTaskWithNonNumericNumberThrowsSpecificError() {
+        DingleberryException exception = assertThrows(
+                DingleberryException.class,
+                () -> Parser.parse("delete one"));
+
+        assertEquals("'delete' needs a numeric task number.",
+                exception.getMessage());
     }
 
     @Test

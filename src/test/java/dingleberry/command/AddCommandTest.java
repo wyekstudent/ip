@@ -1,7 +1,9 @@
 package dingleberry.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -9,6 +11,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import dingleberry.exception.DingleberryException;
 import dingleberry.model.Deadlines;
 import dingleberry.model.Events;
 import dingleberry.model.Task;
@@ -55,6 +58,37 @@ class AddCommandTest {
                         TEST_DAY, EVENT_START_HOUR, 0),
                 LocalDateTime.of(TEST_YEAR, TEST_MONTH,
                         TEST_DAY, EVENT_END_HOUR, 0)));
+    }
+
+        @Test
+        void executeDuplicateTaskRejectsSecondTask() throws Exception {
+        TaskList tasks = new TaskList(new Todo("read lecture notes"));
+        Storage storage = new Storage(tempDir.resolve("dingleberry.txt")
+                .toString());
+
+        assertThrows(DingleberryException.class,
+                () -> new AddCommand(new Todo("read lecture notes"))
+                        .execute(tasks, new Ui(), storage));
+
+        assertEquals(1, tasks.size());
+    }
+
+    @Test
+    void executeUnexpectedSaveFailureReportsErrorInsteadOfThrowing()
+            throws Exception {
+        Task failingTask = new Task("broken") {
+            @Override
+            public String toSaveFormat() {
+                throw new IllegalStateException("serialization failed");
+            }
+        };
+        TaskList tasks = new TaskList();
+        Storage storage = new Storage(tempDir.resolve("dingleberry.txt")
+                .toString());
+
+        assertDoesNotThrow(() -> new AddCommand(failingTask)
+                .execute(tasks, new Ui(), storage));
+        assertEquals(1, tasks.size());
     }
 
     private void assertAddedTaskIsPersisted(final Task task) throws Exception {

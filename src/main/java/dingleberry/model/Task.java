@@ -63,13 +63,44 @@ public abstract class Task {
     }
 
     /**
+     * Returns whether two tasks have identical type, description, and dates.
+     *
+     * @param other the task to compare with this task.
+     * @return true when the task content matches, regardless of completion.
+     */
+    public final boolean hasSameContentAs(final Task other) {
+        if (other == null || !getClass().equals(other.getClass())) {
+            return false;
+        }
+        String thisContent = toSaveFormat().replaceFirst(" \\| [01] \\| ",
+                " | ");
+        String otherContent = other.toSaveFormat().replaceFirst(
+                " \\| [01] \\| ", " | ");
+        return thisContent.equals(otherContent);
+    }
+
+    /**
     * Encodes the fields common to every task type as "doneFlag | description"
     * for use by subclasses building their {@link #toSaveFormat()} line.
     *
     * @return the encoded common task fields.
      */
     protected final String encodeCommonFields() {
-        return String.format("%s | %s", isDone ? "1" : "0", description);
+        return String.format("%s | %s", isDone ? "1" : "0",
+                escapeDescription(description));
+    }
+
+    /**
+     * Escapes characters that would otherwise change the record structure.
+     *
+     * @param text the description to escape.
+     * @return the escaped description.
+     */
+    private static String escapeDescription(final String text) {
+        return text.replace("\\", "\\\\")
+                .replace("|", "\\|")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
     }
 
     /**
