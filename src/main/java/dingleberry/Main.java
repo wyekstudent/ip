@@ -250,6 +250,19 @@ public final class Main extends Application {
             dialogLog.getChildren().add(DialogBox.getBotDialog(message));
         }
 
+        /**
+         * Adds a dedicated error card with the given heading and detail
+         * message, styled distinctly from an ordinary bot reply.
+         *
+         * @param heading a short description of the error
+         * @param message the detail message explaining what went wrong
+         */
+        private void appendErrorMessage(final String heading,
+                                        final String message) {
+            dialogLog.getChildren()
+                    .add(DialogBox.getErrorDialog(heading, message));
+        }
+
         @Override
         public void showWelcome() {
             final DialogBox welcomeDialog =
@@ -307,28 +320,23 @@ public final class Main extends Application {
 
         @Override
         public void showWrongCommandError(final String message) {
-            appendMessage(
-                "Woops, Dingleberry doesn't know that command: "
-                            + message);
+            appendErrorMessage("Command not understood", message);
         }
 
         @Override
         public void showIncorrectParametersError(final String message) {
-            appendMessage(
-                "Uh-oh, Dingleberry got tangled in those parameters: "
-                            + message);
+            appendErrorMessage("Missing or invalid details", message);
         }
 
         @Override
         public void showLoadingError(final String message) {
-            appendMessage("Woops, I couldn't load saved tasks (" + message
-                    + "). Starting with an empty list.");
+            appendErrorMessage("Could not load tasks",
+                    message + " Starting with an empty list.");
         }
 
         @Override
         public void showSavingError(final String message) {
-            appendMessage("Woops, I couldn't save tasks to disk (" + message
-                    + ").");
+            appendErrorMessage("Could not save tasks", message);
         }
 
         @Override
