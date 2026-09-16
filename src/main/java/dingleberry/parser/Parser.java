@@ -66,6 +66,8 @@ public final class Parser {
     private static final String EVENT_TO_PREFIX = " /to ";
     /** Defines the example date/time text shown in user-facing errors. */
     private static final String DATE_TIME_EXAMPLE = "2019-12-02 1800";
+    /** Defines the example relative weekday shown in user-facing errors. */
+    private static final String RELATIVE_DATE_EXAMPLE = "next Tue";
 
     private Parser() {
     }
@@ -211,7 +213,8 @@ public final class Parser {
             throw new DingleberryException(
                     "A deadline needs a description and '/by <date>' in the"
                             + " format yyyy-MM-dd HHmm, e.g. "
-                            + DATE_TIME_EXAMPLE + ".");
+                        + DATE_TIME_EXAMPLE + ", or a weekday such as "
+                        + RELATIVE_DATE_EXAMPLE + ".");
         }
 
         String description = requireValue(
@@ -243,8 +246,9 @@ public final class Parser {
             throw new DingleberryException(
                     "An event needs a description, '/from <time>',"
                             + " and '/to <time>' in the format"
-                            + " yyyy-MM-dd HHmm, e.g. " + DATE_TIME_EXAMPLE
-                            + ".");
+                        + " yyyy-MM-dd HHmm, e.g. " + DATE_TIME_EXAMPLE
+                        + ", or a weekday such as "
+                        + RELATIVE_DATE_EXAMPLE + ".");
         }
 
         String description = requireValue(
@@ -444,7 +448,7 @@ public final class Parser {
     private static DingleberryException invalidDateTimeException() {
         return new DingleberryException(
                 "I couldn't understand that date/time. Use yyyy-MM-dd HHmm,"
-                        + " a weekday such as Mon or next Monday, or a time"
-                        + " such as 2:30pm.");
+                + " a weekday such as Mon or " + RELATIVE_DATE_EXAMPLE
+                + ", or a time such as 2:30pm.");
     }
 }
