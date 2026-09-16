@@ -1,19 +1,19 @@
 /* Stylesheet for the Dingleberry JavaFX chatbot window. */
 
 .root {
-    -fx-background-color: #2b2d31;
+    -fx-background-color: #20232b;
     -fx-font-family: "Segoe UI", sans-serif;
 }
 
 .title-label {
     -fx-text-fill: #f2f3f5;
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
 }
 
 .header-bar {
-    -fx-background-color: #24262b;
-    -fx-background-radius: 10;
+    -fx-background-color: #292d38;
+    -fx-background-radius: 14;
     -fx-padding: 8 14 8 14;
     -fx-border-color: #75ddea;
     -fx-border-width: 0 0 2 0;
@@ -44,7 +44,7 @@
 .bubble {
     -fx-padding: 10 14 10 14;
     -fx-background-radius: 14;
-    -fx-font-size: 13px;
+    -fx-font-size: 15px;
     -fx-text-fill: #20232b;
     -fx-text-alignment: left;
 }
@@ -70,18 +70,19 @@
     -fx-background-color: #ffe1e8;
     -fx-border-color: #d94b72;
     -fx-border-width: 0 0 0 4;
+    -fx-background-radius: 14;
     -fx-padding: 10 14 10 10;
 }
 
 .error-heading {
     -fx-text-fill: #20232b;
     -fx-font-weight: bold;
-    -fx-font-size: 13px;
+    -fx-font-size: 15px;
 }
 
 .error-message {
     -fx-text-fill: #20232b;
-    -fx-font-size: 12px;
+    -fx-font-size: 14px;
 }
 
 .warning-icon {
@@ -92,25 +93,56 @@
     -fx-font-weight: bold;
 }
 
+.composer-bar {
+    -fx-background-color: #292d38;
+    -fx-background-radius: 14;
+    -fx-padding: 8 10 8 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 6, 0, 0, 2);
+}
+
 .input-field {
-    -fx-background-radius: 18;
+    -fx-background-color: #20232b;
+    -fx-background-radius: 12;
     -fx-padding: 8 14 8 14;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #f2f3f5;
+    -fx-prompt-text-fill: #717687;
+}
+
+.input-field:focused {
+    -fx-background-color: #20232b;
+    -fx-border-color: #75ddea;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
 }
 
 .send-button {
-    -fx-background-color: #fb8500;
-    -fx-text-fill: white;
+    -fx-background-color: #75ddea;
+    -fx-text-fill: #20232b;
     -fx-font-weight: bold;
-    -fx-background-radius: 18;
+    -fx-font-size: 14px;
+    -fx-background-radius: 14;
     -fx-padding: 8 20 8 20;
     -fx-cursor: hand;
 }
 
 .send-button:hover {
-    -fx-background-color: #e07600;
+    -fx-background-color: #5bc9d9;
 }
 
 .send-button:pressed {
-    -fx-background-color: #c56800;
+    -fx-background-color: #45b4c4;
+}
+
+.send-button:focused {
+    -fx-border-color: #75ddea;
+    -fx-border-width: 2;
+    -fx-border-radius: 14;
+}
+
+.send-button:disabled {
+    -fx-background-color: #3a3d45;
+    -fx-text-fill: #717687;
+    -fx-cursor: default;
+    -fx-opacity: 1;
 }

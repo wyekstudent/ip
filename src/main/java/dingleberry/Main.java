@@ -10,6 +10,7 @@ import dingleberry.parser.Parser;
 import dingleberry.persistence.Storage;
 import dingleberry.ui.Ui;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -114,12 +115,18 @@ public final class Main extends Application {
         // any extra width from resizing.
         sendButton.setMinWidth(SEND_BUTTON_WIDTH);
         sendButton.setPrefWidth(SEND_BUTTON_WIDTH);
+        // Disabled whenever there is nothing meaningful to send, so it
+        // cannot be clicked on blank or whitespace-only input.
+        sendButton.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> inputField.getText().trim().isEmpty(),
+                inputField.textProperty()));
         inputField.setPromptText("Type a command...");
         inputField.getStyleClass().add("input-field");
         HBox.setHgrow(inputField, Priority.ALWAYS);
 
         final HBox inputBox = new HBox(
                 INPUT_BOX_SPACING, inputField, sendButton);
+        inputBox.getStyleClass().add("composer-bar");
 
         final BorderPane root = new BorderPane();
         root.getStyleClass().add("root");
@@ -201,6 +208,7 @@ public final class Main extends Application {
             chatUi.showIncorrectParametersError(
                     "Please give me a command or a task description.");
             inputField.clear();
+            inputField.requestFocus();
             return;
         }
 
@@ -214,6 +222,7 @@ public final class Main extends Application {
             if (command.isExit()) {
                 chatUi.showGoodbye();
                 stage.close();
+                return;
             }
         } catch (DingleberryException e) {
             if (e.isWrongCommand()) {
@@ -222,6 +231,10 @@ public final class Main extends Application {
                 chatUi.showIncorrectParametersError(e.getMessage());
             }
         }
+        // Keep the caret in the input field after every command so the
+        // user can keep typing without an extra click, whether they sent
+        // it with Enter or the Send button.
+        inputField.requestFocus();
     }
 
     /**
