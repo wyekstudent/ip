@@ -80,6 +80,10 @@ public final class Parser {
      */
     public static Command parse(final String fullCommand)
             throws DingleberryException {
+        if (fullCommand == null) {
+            throw new DingleberryException(
+                    "Please give me a command or a task description.");
+        }
         String input = normalizeInput(fullCommand);
         if (input.isBlank()) {
             throw new DingleberryException(

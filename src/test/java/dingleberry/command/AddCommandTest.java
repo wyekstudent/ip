@@ -1,6 +1,7 @@
 package dingleberry.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -69,6 +70,24 @@ class AddCommandTest {
                 () -> new AddCommand(new Todo("read lecture notes"))
                         .execute(tasks, new Ui(), storage));
 
+        assertEquals(1, tasks.size());
+    }
+
+    @Test
+    void executeUnexpectedSaveFailureReportsErrorInsteadOfThrowing()
+            throws Exception {
+        Task failingTask = new Task("broken") {
+            @Override
+            public String toSaveFormat() {
+                throw new IllegalStateException("serialization failed");
+            }
+        };
+        TaskList tasks = new TaskList();
+        Storage storage = new Storage(tempDir.resolve("dingleberry.txt")
+                .toString());
+
+        assertDoesNotThrow(() -> new AddCommand(failingTask)
+                .execute(tasks, new Ui(), storage));
         assertEquals(1, tasks.size());
     }
 

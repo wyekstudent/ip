@@ -3,6 +3,7 @@ package dingleberry;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
 
 import dingleberry.command.Command;
 import dingleberry.exception.DingleberryException;
@@ -75,6 +76,8 @@ public final class Main extends Application {
     private final ChatUi chatUi;
     /** Stores a startup load failure to display after the GUI is ready. */
     private final String startupLoadError;
+    /** Stores corrupted-record warnings to display after the GUI is ready. */
+    private final List<String> startupLoadWarnings;
     /** Holds the ordered speech bubbles shown in the chat log. */
     private final VBox dialogContainer = new VBox(DIALOG_SPACING);
     /** Scrolls the dialog container and keeps the latest message visible. */
@@ -91,14 +94,18 @@ public final class Main extends Application {
         this.storage = new Storage(DEFAULT_DATA_FILE_PATH);
         TaskList loadedTasks;
         String loadError = null;
+        List<String> loadWarnings = List.of();
         try {
-            loadedTasks = new TaskList(storage.load());
+            Storage.LoadResult loadResult = storage.loadWithReport();
+            loadedTasks = new TaskList(loadResult.getTasks());
+            loadWarnings = loadResult.getWarnings();
         } catch (IOException e) {
             loadedTasks = new TaskList();
             loadError = e.getMessage();
         }
         this.tasks = loadedTasks;
         this.startupLoadError = loadError;
+        this.startupLoadWarnings = loadWarnings;
         this.chatUi = new ChatUi(dialogContainer);
     }
 
@@ -167,6 +174,9 @@ public final class Main extends Application {
         chatUi.showWelcome();
         if (startupLoadError != null) {
             chatUi.showLoadingError(startupLoadError);
+        }
+        for (String warning : startupLoadWarnings) {
+            chatUi.showLoadingWarning(warning);
         }
     }
 
@@ -384,6 +394,11 @@ public final class Main extends Application {
         public void showLoadingError(final String message) {
             appendErrorMessage("Could not load tasks",
                     message + " Starting with an empty list.");
+        }
+
+        @Override
+        public void showLoadingWarning(final String message) {
+            appendErrorMessage("Some tasks were skipped", message);
         }
 
         @Override

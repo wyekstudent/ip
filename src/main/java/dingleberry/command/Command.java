@@ -49,6 +49,10 @@ public abstract class Command {
             storage.save(tasks);
         } catch (IOException e) {
             ui.showSavingError(e.getMessage());
+        } catch (RuntimeException e) {
+            String message = e.getMessage() == null
+                    ? e.getClass().getSimpleName() : e.getMessage();
+            ui.showSavingError("Unexpected storage error: " + message);
         }
     }
 }

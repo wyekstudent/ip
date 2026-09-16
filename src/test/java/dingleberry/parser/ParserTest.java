@@ -176,6 +176,16 @@ class ParserTest {
         assertFalse(exception.isWrongCommand());
     }
 
+        @Test
+        void parseNullInputThrowsIncorrectParameters() {
+                DingleberryException exception = assertThrows(
+                                DingleberryException.class,
+                                () -> Parser.parse(null));
+
+                assertEquals("Please give me a command or a task description.",
+                                exception.getMessage());
+        }
+
     @Test
     void parseUnknownCommandThrowsWrongCommand() {
         DingleberryException exception = assertThrows(

@@ -43,6 +43,38 @@ public class Storage {
     /** Stores the data file path. */
     private final Path filePath;
 
+    /** Contains successfully loaded tasks and recoverable record warnings. */
+    public static final class LoadResult {
+        /** Stores the valid tasks recovered from the data file. */
+        private final ArrayList<Task> tasks;
+        /** Stores warnings for records skipped during recovery. */
+        private final List<String> warnings;
+
+        private LoadResult(final ArrayList<Task> loadedTasks,
+                           final List<String> loadWarnings) {
+            this.tasks = new ArrayList<>(loadedTasks);
+            this.warnings = List.copyOf(loadWarnings);
+        }
+
+        /**
+         * Returns the valid tasks recovered from storage.
+         *
+         * @return a copy of the recovered tasks.
+         */
+        public ArrayList<Task> getTasks() {
+            return new ArrayList<>(tasks);
+        }
+
+        /**
+         * Returns warnings describing skipped corrupted records.
+         *
+         * @return the immutable recovery warnings.
+         */
+        public List<String> getWarnings() {
+            return warnings;
+        }
+    }
+
     /**
      * Creates storage backed by the given relative file path.
      *
@@ -66,7 +98,22 @@ public class Storage {
       * @return the tasks loaded from disk.
      */
     public ArrayList<Task> load() throws IOException {
+        LoadResult result = loadWithReport();
+        for (String warning : result.getWarnings()) {
+            System.err.println(warning);
+        }
+        return result.getTasks();
+    }
+
+    /**
+     * Loads tasks and returns recoverable corruption warnings to the caller.
+     *
+     * @return the valid tasks and warnings for skipped records.
+     * @throws IOException if the storage file cannot be accessed.
+     */
+    public LoadResult loadWithReport() throws IOException {
         ArrayList<Task> tasks = new ArrayList<>();
+        ArrayList<String> warnings = new ArrayList<>();
         ensureParentDirectory();
 
         if (!Files.exists(filePath)) {
@@ -75,7 +122,7 @@ public class Storage {
             } catch (IOException e) {
                 throw storageException("create storage file", e);
             }
-            return tasks;
+            return new LoadResult(tasks, warnings);
         }
 
         final List<String> lines;
@@ -92,12 +139,12 @@ public class Storage {
                 Task task = parseLine(line);
                 tasks.add(task);
             } catch (IllegalArgumentException e) {
-                System.err.println("Skipping corrupted task record: " + line
+                warnings.add("Skipping corrupted task record: " + line
                         + " (" + e.getMessage() + ")");
                 continue;
             }
         }
-        return tasks;
+        return new LoadResult(tasks, warnings);
     }
 
     /**
@@ -237,7 +284,11 @@ public class Storage {
         StringBuilder field = new StringBuilder();
         for (int i = 0; i < line.length(); i++) {
             char character = line.charAt(i);
-            if (character == '\\' && i + 1 < line.length()) {
+            if (character == '\\') {
+                if (i + 1 >= line.length()) {
+                    throw new IllegalArgumentException(
+                            "incomplete escape sequence");
+                }
                 char escaped = line.charAt(++i);
                 if (escaped == '|' || escaped == '\\') {
                     field.append(escaped);
@@ -246,7 +297,8 @@ public class Storage {
                 } else if (escaped == CARRIAGE_RETURN_ESCAPE) {
                     field.append('\r');
                 } else {
-                    field.append('\\').append(escaped);
+                    throw new IllegalArgumentException(
+                            "unknown escape sequence \\" + escaped);
                 }
             } else if (character == '|') {
                 fields.add(field.toString().trim());

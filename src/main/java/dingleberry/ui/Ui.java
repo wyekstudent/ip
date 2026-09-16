@@ -177,6 +177,17 @@ public class Ui {
     }
 
     /**
+     * Reports a corrupted record skipped while loading saved tasks.
+     *
+     * @param message the recovery warning.
+     */
+    public void showLoadingWarning(final String message) {
+        showLine();
+        System.out.println("Warning: " + message);
+        showLine();
+    }
+
+    /**
      * Reports that the task list could not be saved to disk.
      *
      * @param message the reason saving failed.

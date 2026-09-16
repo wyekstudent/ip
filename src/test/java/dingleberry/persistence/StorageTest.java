@@ -81,6 +81,18 @@ class StorageTest {
     }
 
     @Test
+    void loadWithUnknownEscapeReportsCorruptedRecord() throws Exception {
+        Path file = tempDir.resolve("tasks.txt");
+        Files.writeString(file, "T | 0 | bad\\q", StandardCharsets.UTF_8);
+
+        Storage.LoadResult result = storageFor(file).loadWithReport();
+
+        assertEquals(0, result.getTasks().size());
+        assertEquals(1, result.getWarnings().size());
+        assertTrue(result.getWarnings().get(0).contains("unknown escape"));
+    }
+
+    @Test
     void saveFailureDoesNotReplaceExistingFile() throws Exception {
         Path file = tempDir.resolve("tasks.txt");
         Storage storage = storageFor(file);
