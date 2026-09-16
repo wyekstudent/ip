@@ -1,6 +1,8 @@
 package dingleberry;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 import dingleberry.command.Command;
 import dingleberry.exception.DingleberryException;
@@ -71,6 +73,8 @@ public final class Main extends Application {
     private final Storage storage;
     /** Displays output in the GUI instead of the console. */
     private final ChatUi chatUi;
+    /** Stores a startup load failure to display after the GUI is ready. */
+    private final String startupLoadError;
     /** Holds the ordered speech bubbles shown in the chat log. */
     private final VBox dialogContainer = new VBox(DIALOG_SPACING);
     /** Scrolls the dialog container and keeps the latest message visible. */
@@ -86,12 +90,15 @@ public final class Main extends Application {
     public Main() {
         this.storage = new Storage(DEFAULT_DATA_FILE_PATH);
         TaskList loadedTasks;
+        String loadError = null;
         try {
             loadedTasks = new TaskList(storage.load());
         } catch (IOException e) {
             loadedTasks = new TaskList();
+            loadError = e.getMessage();
         }
         this.tasks = loadedTasks;
+        this.startupLoadError = loadError;
         this.chatUi = new ChatUi(dialogContainer);
     }
 
@@ -143,8 +150,12 @@ public final class Main extends Application {
         inputField.setOnAction(event -> handleUserInput());
 
         final Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
-        scene.getStylesheets().add(
-                getClass().getResource(STYLESHEET_PATH).toExternalForm());
+        URL stylesheet = getClass().getResource(STYLESHEET_PATH);
+        if (stylesheet == null) {
+            throw new IllegalStateException(
+                "Missing GUI resource: " + STYLESHEET_PATH);
+        }
+        scene.getStylesheets().add(stylesheet.toExternalForm());
         primaryStage.setTitle("Dingleberry");
         primaryStage.setScene(scene);
         // The window is resizable by default; give it a floor so the
@@ -154,6 +165,9 @@ public final class Main extends Application {
         primaryStage.show();
 
         chatUi.showWelcome();
+        if (startupLoadError != null) {
+            chatUi.showLoadingError(startupLoadError);
+        }
     }
 
     /**
@@ -163,8 +177,18 @@ public final class Main extends Application {
      * @return the assembled header bar.
      */
     private HBox createHeader() {
-        final Image mascotImage = new Image(
-                getClass().getResourceAsStream(MASCOT_IMAGE_PATH));
+        final Image mascotImage;
+        try (InputStream mascotStream = getClass().getResourceAsStream(
+            MASCOT_IMAGE_PATH)) {
+            if (mascotStream == null) {
+            throw new IllegalStateException(
+                "Missing GUI resource: " + MASCOT_IMAGE_PATH);
+            }
+            mascotImage = new Image(mascotStream);
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                "Could not read GUI resource: " + MASCOT_IMAGE_PATH, e);
+        }
         final ImageView mascotView = new ImageView(mascotImage);
         mascotView.setFitWidth(HEADER_AVATAR_SIZE);
         mascotView.setFitHeight(HEADER_AVATAR_SIZE);

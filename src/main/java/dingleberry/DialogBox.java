@@ -1,5 +1,8 @@
 package dingleberry;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -54,8 +57,7 @@ public final class DialogBox extends HBox {
     /** Vertical gap between a card's heading and its body text. */
     private static final int CARD_SPACING = 4;
     /** Mascot artwork shared by every success and information row's icon. */
-    private static final Image MASCOT_IMAGE = new Image(
-            DialogBox.class.getResourceAsStream(MASCOT_IMAGE_PATH));
+    private static final Image MASCOT_IMAGE = loadMascotImage();
 
     private DialogBox(final DialogType type, final String heading,
                       final String text) {
@@ -81,6 +83,25 @@ public final class DialogBox extends HBox {
                 type, heading, text, this.widthProperty());
         this.setAlignment(Pos.TOP_LEFT);
         this.getChildren().addAll(createIcon(type), cardRow);
+    }
+
+    /**
+     * Loads the mascot image or reports a missing or unreadable resource.
+     *
+     * @return the loaded mascot image.
+     */
+    private static Image loadMascotImage() {
+        try (InputStream mascotStream = DialogBox.class.getResourceAsStream(
+                MASCOT_IMAGE_PATH)) {
+            if (mascotStream == null) {
+                throw new IllegalStateException(
+                        "Missing GUI resource: " + MASCOT_IMAGE_PATH);
+            }
+            return new Image(mascotStream);
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                    "Could not read GUI resource: " + MASCOT_IMAGE_PATH, e);
+        }
     }
 
     /**

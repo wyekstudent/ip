@@ -86,7 +86,21 @@ public abstract class Task {
     * @return the encoded common task fields.
      */
     protected final String encodeCommonFields() {
-        return String.format("%s | %s", isDone ? "1" : "0", description);
+        return String.format("%s | %s", isDone ? "1" : "0",
+                escapeDescription(description));
+    }
+
+    /**
+     * Escapes characters that would otherwise change the record structure.
+     *
+     * @param text the description to escape.
+     * @return the escaped description.
+     */
+    private static String escapeDescription(final String text) {
+        return text.replace("\\", "\\\\")
+                .replace("|", "\\|")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
     }
 
     /**
