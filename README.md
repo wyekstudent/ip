@@ -55,3 +55,8 @@ Useful command examples:
 - `list` shows all tasks in the current list.
 - `find <keyword>` shows only tasks whose description contains `<keyword>`.
 - `bye` exits the application.
+
+## Attributions
+
+See [ATTRIBUTIONS.md](ATTRIBUTIONS.md) for reused template material, generated
+artwork, tutorials, and third-party tooling.
