@@ -13,6 +13,7 @@ import dingleberry.parser.Parser;
 import dingleberry.persistence.Storage;
 import dingleberry.ui.Ui;
 import javafx.application.Application;
+import javafx.animation.PauseTransition;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -29,6 +30,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 /**
  * A JavaFX-based chatbot UI for the Dingleberry task app.
@@ -67,6 +69,8 @@ public final class Main extends Application {
     private static final int MIN_WINDOW_HEIGHT = 320;
     /** Compact width reserved for the send button so it never grows. */
     private static final int SEND_BUTTON_WIDTH = 92;
+    /** Time allowed for the farewell message to render before closing. */
+    private static final int GOODBYE_DISPLAY_MILLIS = 800;
 
     /** Stores the current in-memory task list. */
     private final TaskList tasks;
@@ -255,7 +259,11 @@ public final class Main extends Application {
             command.execute(tasks, chatUi, storage);
             if (command.isExit()) {
                 chatUi.showGoodbye();
-                stage.close();
+                inputField.setDisable(true);
+                PauseTransition goodbyeDelay = new PauseTransition(
+                        Duration.millis(GOODBYE_DISPLAY_MILLIS));
+                goodbyeDelay.setOnFinished(event -> stage.close());
+                goodbyeDelay.play();
                 return;
             }
         } catch (DingleberryException e) {
