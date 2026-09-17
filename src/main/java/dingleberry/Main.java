@@ -13,6 +13,7 @@ import dingleberry.parser.Parser;
 import dingleberry.persistence.Storage;
 import dingleberry.ui.Ui;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.animation.PauseTransition;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
@@ -124,8 +125,9 @@ public final class Main extends Application {
 
         chatScrollPane.setFitToWidth(true);
         chatScrollPane.getStyleClass().add("chat-scroll-pane");
-        chatScrollPane.vvalueProperty()
-                .bind(dialogContainer.heightProperty());
+        dialogContainer.heightProperty().addListener(
+            (observable, oldHeight, newHeight) -> Platform.runLater(
+                () -> chatScrollPane.setVvalue(1.0)));
 
         final Button sendButton = new Button("Send");
         sendButton.getStyleClass().add("send-button");
