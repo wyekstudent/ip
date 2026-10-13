@@ -3,8 +3,8 @@ package dingleberry.persistence;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
@@ -26,12 +26,16 @@ import dingleberry.model.Todo;
  * containing folder and file automatically if they don't exist yet.
  */
 public class Storage {
+    /** Identifies the type field in persisted task records. */
+    private static final int FIELD_TYPE_INDEX = 0;
+    /** Identifies the completion flag in persisted task records. */
+    private static final int FIELD_COMPLETION_FLAG_INDEX = 1;
     /** Identifies the description field in persisted task records. */
-    private static final int DESCRIPTION_INDEX = 2;
+    private static final int FIELD_DESCRIPTION_INDEX = 2;
     /** Identifies the first date/time field in persisted task records. */
-    private static final int FIRST_DATE_TIME_INDEX = 3;
+    private static final int FIELD_FIRST_DATE_TIME_INDEX = 3;
     /** Identifies the second date/time field in persisted event records. */
-    private static final int SECOND_DATE_TIME_INDEX = 4;
+    private static final int FIELD_SECOND_DATE_TIME_INDEX = 4;
     /** Defines the strict format used for persisted date/time values. */
     private static final DateTimeFormatter STORAGE_DATE_TIME_FORMAT =
             DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -203,51 +207,92 @@ public class Storage {
         }
     }
 
+    /**
+     * Parses a stored record, validating common fields before task details.
+     *
+     * @param line the pipe-delimited record to parse.
+     * @return the task with its stored completion status restored.
+     * @throws IllegalArgumentException if any record field is invalid.
+     */
     private Task parseLine(final String line) {
         List<String> parts = splitEscapedFields(line);
-        String type = requireField(parts, 0, "task type");
-        String completionFlag = requireField(parts, 1, "completion flag");
-        String description = requireField(parts, DESCRIPTION_INDEX,
+        String type = requireField(parts, FIELD_TYPE_INDEX, "task type");
+        String completionFlag = requireField(parts, FIELD_COMPLETION_FLAG_INDEX,
+                "completion flag");
+        String description = requireField(parts, FIELD_DESCRIPTION_INDEX,
                 "description");
-        boolean isDone;
-        if ("0".equals(completionFlag)) {
-            isDone = false;
-        } else if ("1".equals(completionFlag)) {
-            isDone = true;
-        } else {
-            throw new IllegalArgumentException("invalid completion flag");
-        }
-
-        Task task;
-        switch (type) {
-        case "T":
-            requireFieldCount(parts, DESCRIPTION_INDEX + 1);
-            task = new Todo(description);
-            break;
-        case "D":
-            requireFieldCount(parts, FIRST_DATE_TIME_INDEX + 1);
-            task = new Deadlines(description, parseDateTime(
-                    requireField(parts, FIRST_DATE_TIME_INDEX, "deadline")));
-            break;
-        case "E":
-            requireFieldCount(parts, SECOND_DATE_TIME_INDEX + 1);
-            LocalDateTime from = parseDateTime(requireField(
-                    parts, FIRST_DATE_TIME_INDEX, "event start"));
-            LocalDateTime to = parseDateTime(requireField(
-                    parts, SECOND_DATE_TIME_INDEX, "event end"));
-            if (!to.isAfter(from)) {
-                throw new IllegalArgumentException(
-                        "event end must be after event start");
-            }
-            task = new Events(description, from, to);
-            break;
-        default:
-            throw new IllegalArgumentException("unknown task type");
-        }
+        boolean isDone = parseCompletionFlag(completionFlag);
+        Task task = createTask(type, description, parts);
         if (isDone) {
             task.markAsDone();
         }
         return task;
+    }
+
+    /**
+     * Parses the two completion flags supported by stored records.
+     *
+     * @param completionFlag the stored completion flag.
+     * @return true for a completed task, or false for an incomplete task.
+     * @throws IllegalArgumentException if the flag is neither zero nor one.
+     */
+    private static boolean parseCompletionFlag(final String completionFlag) {
+        if ("0".equals(completionFlag)) {
+            return false;
+        }
+        if ("1".equals(completionFlag)) {
+            return true;
+        }
+        throw new IllegalArgumentException("invalid completion flag");
+    }
+
+    /**
+     * Creates an incomplete task after validating its type-specific fields.
+     *
+     * @param type the stored task type marker.
+     * @param description the validated task description.
+     * @param parts the decoded record fields.
+     * @return the reconstructed incomplete task.
+     * @throws IllegalArgumentException if the type or task details are invalid.
+     */
+    private static Task createTask(final String type, final String description,
+            final List<String> parts) {
+        return switch (type) {
+            case "T" -> {
+                requireFieldCount(parts, FIELD_DESCRIPTION_INDEX + 1);
+                yield new Todo(description);
+            }
+            case "D" -> {
+                requireFieldCount(parts, FIELD_FIRST_DATE_TIME_INDEX + 1);
+                yield new Deadlines(description, parseDateTime(
+                        requireField(parts, FIELD_FIRST_DATE_TIME_INDEX,
+                                "deadline")));
+            }
+            case "E" -> parseEvent(description, parts);
+            default -> throw new IllegalArgumentException("unknown task type");
+        };
+    }
+
+    /**
+     * Parses an event record and validates its chronological order.
+     *
+     * @param description the validated event description.
+     * @param parts the decoded record fields.
+     * @return the reconstructed incomplete event.
+     * @throws IllegalArgumentException if fields or the time range are invalid.
+     */
+    private static Events parseEvent(final String description,
+            final List<String> parts) {
+        requireFieldCount(parts, FIELD_SECOND_DATE_TIME_INDEX + 1);
+        LocalDateTime from = parseDateTime(requireField(parts,
+                FIELD_FIRST_DATE_TIME_INDEX, "event start"));
+        LocalDateTime to = parseDateTime(requireField(parts,
+                FIELD_SECOND_DATE_TIME_INDEX, "event end"));
+        if (!to.isAfter(from)) {
+            throw new IllegalArgumentException(
+                    "event end must be after event start");
+        }
+        return new Events(description, from, to);
     }
 
     private static String requireField(final List<String> fields,
@@ -279,6 +324,13 @@ public class Storage {
         }
     }
 
+    /**
+     * Splits a record at unescaped pipes and decodes escaped field contents.
+     *
+     * @param line the pipe-delimited record to split.
+     * @return the decoded fields with surrounding whitespace removed.
+     * @throws IllegalArgumentException if an escape sequence is invalid.
+     */
     private static List<String> splitEscapedFields(final String line) {
         ArrayList<String> fields = new ArrayList<>();
         StringBuilder field = new StringBuilder();
@@ -289,17 +341,7 @@ public class Storage {
                     throw new IllegalArgumentException(
                             "incomplete escape sequence");
                 }
-                char escaped = line.charAt(++i);
-                if (escaped == '|' || escaped == '\\') {
-                    field.append(escaped);
-                } else if (escaped == NEWLINE_ESCAPE) {
-                    field.append('\n');
-                } else if (escaped == CARRIAGE_RETURN_ESCAPE) {
-                    field.append('\r');
-                } else {
-                    throw new IllegalArgumentException(
-                            "unknown escape sequence \\" + escaped);
-                }
+                field.append(decodeEscapedCharacter(line.charAt(++i)));
             } else if (character == '|') {
                 fields.add(field.toString().trim());
                 field.setLength(0);
@@ -309,6 +351,27 @@ public class Storage {
         }
         fields.add(field.toString().trim());
         return fields;
+    }
+
+    /**
+     * Decodes a character following the escape marker in a stored field.
+     *
+     * @param escaped the character following the backslash.
+     * @return the literal character represented by the escape sequence.
+     * @throws IllegalArgumentException if the escape is unsupported.
+     */
+    private static char decodeEscapedCharacter(final char escaped) {
+        if (escaped == '|' || escaped == '\\') {
+            return escaped;
+        }
+        if (escaped == NEWLINE_ESCAPE) {
+            return '\n';
+        }
+        if (escaped == CARRIAGE_RETURN_ESCAPE) {
+            return '\r';
+        }
+        throw new IllegalArgumentException(
+                "unknown escape sequence \\" + escaped);
     }
 
     private void moveTemporaryFile(final Path temporaryFile,
