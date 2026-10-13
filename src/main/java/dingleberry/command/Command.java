@@ -37,6 +37,28 @@ public abstract class Command {
     }
 
     /**
+     * Validates a one-based task number and returns its zero-based index.
+     * Bounds are checked during execution because the task list may change.
+     *
+     * @param taskNumber the one-based task number supplied by the user.
+     * @param tasks the task list used to validate the number.
+     * @return the validated zero-based index.
+     * @throws DingleberryException if the task number is outside the list.
+     */
+    protected final int requireTaskIndex(final int taskNumber,
+            final TaskList tasks)
+            throws DingleberryException {
+        if (taskNumber < 1 || taskNumber > tasks.size()) {
+            throw new DingleberryException(
+                    "That task number is not in the list.");
+        }
+        int taskIndex = taskNumber - 1;
+        assert taskIndex >= 0 && taskIndex < tasks.size()
+                : "A validated task number must map to a valid list index.";
+        return taskIndex;
+    }
+
+    /**
         * Persists the task list, reporting any I/O failure through the UI.
      *
      * @param tasks the task list to save

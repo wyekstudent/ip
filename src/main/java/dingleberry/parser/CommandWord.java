@@ -57,12 +57,29 @@ public enum CommandWord {
      */
     public static CommandWord fromInput(final String input) {
         for (CommandWord command : values()) {
-            if (command.isExactInput(input)
-                    || command != BYE && input.regionMatches(true, 0,
-                    command.keyword + " ", 0, command.keyword.length() + 1)) {
+            if (command.isMatchingInput(input)) {
                 return command;
             }
         }
         return null;
+    }
+
+    /**
+     * Matches an exact keyword or a keyword followed by a space and arguments.
+     * The exit command only matches its exact keyword.
+     *
+     * @param input the command line to compare without normalizing whitespace.
+     * @return true when this command recognizes the input, ignoring case.
+     */
+    private boolean isMatchingInput(final String input) {
+        if (isExactInput(input)) {
+            return true;
+        }
+        if (this == BYE) {
+            return false;
+        }
+        String argumentPrefix = keyword + " ";
+        return input.regionMatches(true, 0, argumentPrefix, 0,
+                argumentPrefix.length());
     }
 }

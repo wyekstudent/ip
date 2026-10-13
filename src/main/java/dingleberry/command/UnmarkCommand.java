@@ -22,18 +22,12 @@ public class UnmarkCommand extends Command {
 
     @Override
     public final void execute(final TaskList tasks, final Ui ui,
-                              final Storage storage)
+            final Storage storage)
             throws DingleberryException {
-        // Bounds depend on the current task list, so check them at execution.
-        if (taskNumber < 1 || taskNumber > tasks.size()) {
-            throw new DingleberryException(
-                    "That task number is not in the list.");
-        }
-        assert taskNumber - 1 >= 0 && taskNumber - 1 < tasks.size()
-            : "A validated task number must map to a valid list index.";
-        final Task taskToUnmark = tasks.get(taskNumber - 1);
+        final int taskIndex = requireTaskIndex(taskNumber, tasks);
+        final Task taskToUnmark = tasks.get(taskIndex);
         assert taskToUnmark != null
-            : "A task list must not contain null tasks.";
+                : "A task list must not contain null tasks.";
         taskToUnmark.unmarkDone();
         ui.showTaskUnmarked(taskToUnmark);
         saveTasks(tasks, storage, ui);
