@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
@@ -172,6 +173,107 @@ class MainTest {
     }
 
     @Test
+    void submit_blankEnter_showsErrorWithoutUserRow() throws Exception {
+        startApplication(tempDir.resolve("tasks.txt"));
+
+        runOnFxThread(() -> {
+            inputField.setText("   ");
+            inputField.fireEvent(new ActionEvent());
+            assertEquals(2, dialogContainer.getChildren().size());
+            assertEquals("Oopsie, something is missing! ⚠️", headingAt(1));
+            assertEquals("Please give me a command or a task description.",
+                    bodyAt(1));
+            assertEquals("", inputField.getText());
+            assertEquals(inputField, stage.getScene().getFocusOwner());
+        });
+    }
+
+    @Test
+    void submit_invalidCommands_reportsCategoryAndRecovers() throws Exception {
+        Path taskFile = tempDir.resolve("tasks.txt");
+        startApplication(taskFile);
+
+        runOnFxThread(() -> {
+            submitCommand("bogus");
+            assertEquals("Dingleberry is confused! 🤔", latestHeading());
+            submitCommand("todo");
+            assertEquals("Oopsie, something is missing! ⚠️", latestHeading());
+            submitCommand("todo recovered");
+            assertEquals("Taskie added! 🎉", latestHeading());
+            assertEquals(inputField, stage.getScene().getFocusOwner());
+        });
+
+        TaskList savedTasks = new TaskList(
+                new Storage(taskFile.toString()).load());
+        assertEquals(1, savedTasks.size());
+        assertEquals("recovered", savedTasks.get(0).getDescription());
+    }
+
+    @Test
+    void submit_taskCommands_preservesFeedbackAndPersistence()
+            throws Exception {
+        Path taskFile = tempDir.resolve("tasks.txt");
+        startApplication(taskFile);
+
+        runOnFxThread(() -> {
+            submitCommand("todo exercise");
+            submitCommand("mark 1");
+            assertEquals("Taskie complete! ✅", latestHeading());
+            assertTrue(latestBody().contains("[X]"));
+            submitCommand("unmark 1");
+            assertEquals("Taskie reopened! 🔄", latestHeading());
+            assertTrue(latestBody().contains("[ ]"));
+            submitCommand("list");
+            assertTrue(latestBody().contains("exercise"));
+            submitCommand("find exercise");
+            assertTrue(latestBody().contains("exercise"));
+            submitCommand("delete 1");
+            assertEquals("Taskie removed! 🗑️", latestHeading());
+        });
+
+        assertTrue(new Storage(taskFile.toString()).load().isEmpty());
+    }
+
+    @Test
+    void submit_saveFailure_displaysFailureAndRetainsTask() throws Exception {
+        Storage failingStorage = new Storage(
+                tempDir.resolve("tasks.txt").toString()) {
+            @Override
+            public void save(final TaskList tasks) throws IOException {
+                throw new IOException("test storage failure");
+            }
+        };
+        startApplication(failingStorage);
+
+        runOnFxThread(() -> {
+            submitCommand("todo unsaved task");
+            assertEquals("Could not save tasks", latestHeading());
+            assertEquals("test storage failure", latestBody());
+            submitCommand("list");
+            assertTrue(latestBody().contains("unsaved task"));
+        });
+    }
+
+    @Test
+    void submit_bye_displaysFarewellBeforeClosing() throws Exception {
+        startApplication(tempDir.resolve("tasks.txt"));
+        CountDownLatch windowClosed = new CountDownLatch(1);
+
+        runOnFxThread(() -> {
+            stage.setOnHidden(event -> windowClosed.countDown());
+            submitCommand("bye");
+            assertEquals("Goodbye", latestHeading());
+            assertEquals("Bye, hope to see your berries again!", latestBody());
+            assertTrue(inputField.isDisabled());
+            assertTrue(sendButton.isDisabled());
+            assertTrue(stage.isShowing());
+        });
+
+        assertTrue(windowClosed.await(FX_TIMEOUT_SECONDS, TimeUnit.SECONDS));
+        runOnFxThread(() -> assertFalse(stage.isShowing()));
+    }
+
+    @Test
     void submit_newMessages_scrollsToLatestResponse() throws Exception {
         startApplication(tempDir.resolve("tasks.txt"));
         runOnFxThread(() -> {
@@ -198,9 +300,19 @@ class MainTest {
      * @throws Exception if JavaFX startup or task loading fails unexpectedly.
      */
     private void startApplication(final Path taskFile) throws Exception {
+        startApplication(new Storage(taskFile.toString()));
+    }
+
+    /**
+     * Starts a window using real storage or an isolated failure fixture.
+     *
+     * @param taskStorage the persistence collaborator for the test.
+     * @throws Exception if the JavaFX thread fails to start the window.
+     */
+    private void startApplication(final Storage taskStorage) throws Exception {
         runOnFxThread(() -> {
             stage = new Stage();
-            new Main(new Storage(taskFile.toString())).start(stage);
+            new Main(taskStorage).start(stage);
             root = (BorderPane) stage.getScene().getRoot();
             HBox composer = (HBox) root.getBottom();
             inputField = (TextField) composer.getChildren().get(0);
@@ -208,6 +320,34 @@ class MainTest {
             chatScrollPane = (ScrollPane) root.getCenter();
             dialogContainer = (VBox) chatScrollPane.getContent();
         });
+    }
+
+    /**
+     * Submits a command through the displayed Send button on the JavaFX thread.
+     *
+     * @param input the command to submit.
+     */
+    private void submitCommand(final String input) {
+        inputField.setText(input);
+        sendButton.fire();
+    }
+
+    /**
+     * Returns the heading of the newest bot response.
+     *
+     * @return the latest displayed heading.
+     */
+    private String latestHeading() {
+        return headingAt(dialogContainer.getChildren().size() - 1);
+    }
+
+    /**
+     * Returns the body of the newest bot response.
+     *
+     * @return the latest displayed body.
+     */
+    private String latestBody() {
+        return bodyAt(dialogContainer.getChildren().size() - 1);
     }
 
     /**
