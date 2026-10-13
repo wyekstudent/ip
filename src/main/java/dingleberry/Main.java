@@ -256,19 +256,42 @@ public final class Main extends Application {
      * @return the assembled header bar.
      */
     private HBox createHeader() {
-        final Image mascotImage;
+        HBox header = new HBox(
+                HEADER_SPACING, createMascotView(), createTitleBlock());
+        header.getStyleClass().add("header-bar");
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setMinHeight(HEADER_HEIGHT);
+        header.setPrefHeight(HEADER_HEIGHT);
+        header.setMaxHeight(HEADER_HEIGHT);
+        return header;
+    }
+
+    /**
+     * Loads the header artwork or reports a missing or unreadable resource.
+     *
+     * @return the loaded mascot image.
+     */
+    private Image loadMascotImage() {
         try (InputStream mascotStream = getClass().getResourceAsStream(
-            MASCOT_IMAGE_PATH)) {
+                MASCOT_IMAGE_PATH)) {
             if (mascotStream == null) {
-            throw new IllegalStateException(
-                "Missing GUI resource: " + MASCOT_IMAGE_PATH);
+                throw new IllegalStateException(
+                        "Missing GUI resource: " + MASCOT_IMAGE_PATH);
             }
-            mascotImage = new Image(mascotStream);
+            return new Image(mascotStream);
         } catch (IOException e) {
             throw new IllegalStateException(
-                "Could not read GUI resource: " + MASCOT_IMAGE_PATH, e);
+                    "Could not read GUI resource: " + MASCOT_IMAGE_PATH, e);
         }
-        final ImageView mascotView = new ImageView(mascotImage);
+    }
+
+    /**
+     * Creates the circular header avatar with its accessible description.
+     *
+     * @return the configured mascot view.
+     */
+    private ImageView createMascotView() {
+        ImageView mascotView = new ImageView(loadMascotImage());
         mascotView.setFitWidth(HEADER_AVATAR_SIZE);
         mascotView.setFitHeight(HEADER_AVATAR_SIZE);
         mascotView.setPreserveRatio(true);
@@ -277,24 +300,24 @@ public final class Main extends Application {
         mascotView.setClip(new Circle(HEADER_AVATAR_SIZE / 2.0,
                 HEADER_AVATAR_SIZE / 2.0, HEADER_AVATAR_SIZE / 2.0));
         mascotView.setAccessibleText("Dingleberry mascot");
+        return mascotView;
+    }
 
-        final Label titleLabel = new Label("Dingleberry");
+    /**
+     * Creates the app name and subtitle displayed beside the mascot.
+     *
+     * @return the aligned title labels.
+     */
+    private VBox createTitleBlock() {
+        Label titleLabel = new Label("Dingleberry");
         titleLabel.getStyleClass().add("title-label");
 
-        final Label subtitleLabel = new Label("Task assistant");
+        Label subtitleLabel = new Label("Task assistant");
         subtitleLabel.getStyleClass().add("subtitle-label");
 
-        final VBox titleBlock = new VBox(titleLabel, subtitleLabel);
+        VBox titleBlock = new VBox(titleLabel, subtitleLabel);
         titleBlock.setAlignment(Pos.CENTER_LEFT);
-
-        final HBox header = new HBox(
-                HEADER_SPACING, mascotView, titleBlock);
-        header.getStyleClass().add("header-bar");
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setMinHeight(HEADER_HEIGHT);
-        header.setPrefHeight(HEADER_HEIGHT);
-        header.setMaxHeight(HEADER_HEIGHT);
-        return header;
+        return titleBlock;
     }
 
     /**
