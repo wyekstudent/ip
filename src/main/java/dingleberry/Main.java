@@ -96,7 +96,16 @@ public final class Main extends Application {
      * Creates the GUI app and loads saved tasks if they exist.
      */
     public Main() {
-        this.storage = new Storage(DEFAULT_DATA_FILE_PATH);
+        this(new Storage(DEFAULT_DATA_FILE_PATH));
+    }
+
+    /**
+     * Creates the GUI with the supplied storage, allowing isolated task files.
+     *
+     * @param taskStorage the storage used to load and save tasks.
+     */
+    Main(final Storage taskStorage) {
+        storage = taskStorage;
         TaskList loadedTasks;
         String loadError = null;
         List<String> loadWarnings = List.of();
@@ -108,47 +117,81 @@ public final class Main extends Application {
             loadedTasks = new TaskList();
             loadError = e.getMessage();
         }
-        this.tasks = loadedTasks;
-        this.startupLoadError = loadError;
-        this.startupLoadWarnings = loadWarnings;
-        this.chatUi = new ChatUi(dialogContainer);
+        tasks = loadedTasks;
+        startupLoadError = loadError;
+        startupLoadWarnings = loadWarnings;
+        chatUi = new ChatUi(dialogContainer);
     }
 
     @Override
     public void start(final Stage primaryStage) {
-        this.stage = primaryStage;
+        stage = primaryStage;
+        configureChat();
+        BorderPane root = createRoot(createHeader(), createInputBox());
+        configureStage(primaryStage, createScene(root));
+        primaryStage.show();
+        showStartupMessages();
+    }
 
-        final HBox header = createHeader();
-
+    /**
+     * Configures the conversation layout and scrolls after new rows appear.
+     */
+    private void configureChat() {
         dialogContainer.setPadding(new Insets(DIALOG_PADDING));
         dialogContainer.getStyleClass().add("dialog-container");
 
         chatScrollPane.setFitToWidth(true);
         chatScrollPane.getStyleClass().add("chat-scroll-pane");
         dialogContainer.heightProperty().addListener(
-            (observable, oldHeight, newHeight) -> Platform.runLater(
-                () -> chatScrollPane.setVvalue(1.0)));
+                (observable, oldHeight, newHeight) -> Platform.runLater(
+                        () -> chatScrollPane.setVvalue(1.0)));
+    }
 
-        final Button sendButton = new Button("Send");
+    /**
+     * Creates the command composer with shared Send and Enter behavior.
+     *
+     * @return the assembled input controls.
+     */
+    private HBox createInputBox() {
+        Button sendButton = createSendButton();
+        inputField.setPromptText("Type a command...");
+        inputField.getStyleClass().add("input-field");
+        inputField.setOnAction(event -> handleUserInput());
+        HBox.setHgrow(inputField, Priority.ALWAYS);
+
+        HBox inputBox = new HBox(INPUT_BOX_SPACING, inputField, sendButton);
+        inputBox.getStyleClass().add("composer-bar");
+        return inputBox;
+    }
+
+    /**
+     * Creates a compact Send button enabled only for meaningful input.
+     *
+     * @return the configured Send button.
+     */
+    private Button createSendButton() {
+        Button sendButton = new Button("Send");
         sendButton.getStyleClass().add("send-button");
         // Fixed so the button stays compact while the input field absorbs
         // any extra width from resizing.
         sendButton.setMinWidth(SEND_BUTTON_WIDTH);
         sendButton.setPrefWidth(SEND_BUTTON_WIDTH);
-        // Disabled whenever there is nothing meaningful to send, so it
-        // cannot be clicked on blank or whitespace-only input.
         sendButton.disableProperty().bind(Bindings.createBooleanBinding(
                 () -> inputField.getText().trim().isEmpty(),
                 inputField.textProperty()));
-        inputField.setPromptText("Type a command...");
-        inputField.getStyleClass().add("input-field");
-        HBox.setHgrow(inputField, Priority.ALWAYS);
+        sendButton.setOnAction(event -> handleUserInput());
+        return sendButton;
+    }
 
-        final HBox inputBox = new HBox(
-                INPUT_BOX_SPACING, inputField, sendButton);
-        inputBox.getStyleClass().add("composer-bar");
-
-        final BorderPane root = new BorderPane();
+    /**
+     * Arranges the header, conversation, and composer in the window.
+     *
+     * @param header the branded header.
+     * @param inputBox the command composer.
+     * @return the assembled window layout.
+     */
+    private BorderPane createRoot(final HBox header, final HBox inputBox) {
+        BorderPane root = new BorderPane();
         root.getStyleClass().add("root");
         root.setPadding(new Insets(ROOT_PADDING));
         root.setTop(header);
@@ -158,25 +201,45 @@ public final class Main extends Application {
                 new Insets(0, 0, DIALOG_PADDING, 0));
         BorderPane.setMargin(inputBox,
                 new Insets(DIALOG_PADDING, 0, 0, 0));
+        return root;
+    }
 
-        sendButton.setOnAction(event -> handleUserInput());
-        inputField.setOnAction(event -> handleUserInput());
-
-        final Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+    /**
+     * Creates the styled scene or reports a missing stylesheet.
+     *
+     * @param root the window layout.
+     * @return the scene with the application stylesheet.
+     */
+    private Scene createScene(final BorderPane root) {
+        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
         URL stylesheet = getClass().getResource(STYLESHEET_PATH);
         if (stylesheet == null) {
             throw new IllegalStateException(
-                "Missing GUI resource: " + STYLESHEET_PATH);
+                    "Missing GUI resource: " + STYLESHEET_PATH);
         }
         scene.getStylesheets().add(stylesheet.toExternalForm());
+        return scene;
+    }
+
+    /**
+     * Configures the window and its minimum usable dimensions.
+     *
+     * @param primaryStage the application window.
+     * @param scene the conversation scene.
+     */
+    private void configureStage(final Stage primaryStage, final Scene scene) {
         primaryStage.setTitle("Dingleberry");
         primaryStage.setScene(scene);
         // The window is resizable by default; give it a floor so the
         // header, conversation, and composer stay usable at small sizes.
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
-        primaryStage.show();
+    }
 
+    /**
+     * Displays the greeting before any task-loading errors or warnings.
+     */
+    private void showStartupMessages() {
         chatUi.showWelcome();
         if (startupLoadError != null) {
             chatUi.showLoadingError(startupLoadError);

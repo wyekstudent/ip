@@ -107,6 +107,15 @@
 
   <module name="TreeWalker">
 
+    <!-- SE-EDU allows scenario-style names for JUnit test methods. -->
+    <module name="SuppressionXpathSingleFilter">
+      <property name="checks" value="MethodName"/>
+      <property name="files" value="[\\/]src[\\/]test[\\/]java[\\/]"/>
+      <property name="query"
+                value="//METHOD_DEF[MODIFIERS/ANNOTATION/IDENT[@text='Test']]
+                       /IDENT[matches(@text, '^[a-z][a-zA-Z0-9]*(_[a-z][a-zA-Z0-9]*){1,2}$')]"/>
+    </module>
+
     <!-- Checks for Javadoc comments.                     -->
     <!-- See https://checkstyle.org/checks/javadoc/index.html -->
     <module name="InvalidJavadocPosition"/>
