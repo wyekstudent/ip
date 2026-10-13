@@ -22,18 +22,10 @@ public class DeleteCommand extends Command {
 
     @Override
     public final void execute(final TaskList tasks, final Ui ui,
-                              final Storage storage)
+            final Storage storage)
             throws DingleberryException {
-        // Bounds depend on the current task list.
-        // Check them during execution.
-        // time.
-        if (taskNumber < 1 || taskNumber > tasks.size()) {
-                    throw new DingleberryException(
-                        "That task number is not in the list.");
-        }
-        assert taskNumber - 1 >= 0 && taskNumber - 1 < tasks.size()
-            : "A validated task number must map to a valid list index.";
-        final Task deletedTask = tasks.remove(taskNumber - 1);
+        final int taskIndex = requireTaskIndex(taskNumber, tasks);
+        final Task deletedTask = tasks.remove(taskIndex);
         assert deletedTask != null : "A task list must not contain null tasks.";
         ui.showTaskDeleted(deletedTask, tasks.size());
         saveTasks(tasks, storage, ui);
