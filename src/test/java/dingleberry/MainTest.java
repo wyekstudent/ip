@@ -2,6 +2,7 @@ package dingleberry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -19,13 +20,16 @@ import dingleberry.model.TaskList;
 import dingleberry.persistence.Storage;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 /**
@@ -77,6 +81,27 @@ class MainTest {
             if (stage != null) {
                 stage.close();
             }
+        });
+    }
+
+    @Test
+    void start_headerResources_showsTitleAndAccessibleMascot()
+            throws Exception {
+        startApplication(tempDir.resolve("tasks.txt"));
+
+        runOnFxThread(() -> {
+            HBox header = (HBox) root.getTop();
+            ImageView mascot = (ImageView) header.getChildren().get(0);
+            assertFalse(mascot.getImage().isError());
+            assertEquals("Dingleberry mascot", mascot.getAccessibleText());
+            Circle clip = assertInstanceOf(Circle.class, mascot.getClip());
+            assertEquals(mascot.getFitWidth() / 2.0, clip.getRadius());
+            assertEquals(Pos.CENTER_LEFT, header.getAlignment());
+            assertEquals(header.getMinHeight(), header.getMaxHeight());
+            assertEquals("Dingleberry",
+                    ((Label) header.lookup(".title-label")).getText());
+            assertEquals("Task assistant",
+                    ((Label) header.lookup(".subtitle-label")).getText());
         });
     }
 
