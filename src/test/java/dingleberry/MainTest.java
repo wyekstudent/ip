@@ -37,8 +37,10 @@ import javafx.stage.Stage;
  * Tests the GUI through its displayed controls with isolated task storage.
  */
 class MainTest {
-    /** Bounds waits so a JavaFX failure cannot hang the test suite. */
+    /** Bounds toolkit startup and farewell waits. */
     private static final int FX_TIMEOUT_SECONDS = 10;
+    /** Allows slower CI desktops to complete scene operations and cleanup. */
+    private static final int FX_ACTION_TIMEOUT_SECONDS = 30;
     /** Supplies enough responses to overflow the conversation viewport. */
     private static final int OVERFLOW_TASK_COUNT = 12;
     /** Identifies the list response after welcome, warning, and user input. */
@@ -381,6 +383,6 @@ class MainTest {
     private static void runOnFxThread(final Runnable action) throws Exception {
         FutureTask<Void> task = new FutureTask<>(action, null);
         Platform.runLater(task);
-        task.get(FX_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        task.get(FX_ACTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 }
