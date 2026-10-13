@@ -6,7 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Path;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import dingleberry.command.AddCommand;
 import dingleberry.command.Command;
@@ -17,9 +20,30 @@ import dingleberry.command.ListCommand;
 import dingleberry.command.MarkCommand;
 import dingleberry.command.UnmarkCommand;
 import dingleberry.exception.DingleberryException;
+import dingleberry.model.Task;
+import dingleberry.model.TaskList;
+import dingleberry.persistence.Storage;
+import dingleberry.ui.Ui;
 
 /** Tests command recognition and validation performed by {@link Parser}. */
 class ParserTest {
+    @Test
+    void parse_taskArguments_preservesTaskContent(@TempDir final Path tempDir)
+            throws DingleberryException {
+        Path taskFile = tempDir.resolve("tasks.txt");
+        assertEquals("T | 0 | read notes",
+                parseAndExecute("  TODO   read   notes  ", taskFile)
+                        .toSaveFormat());
+        assertEquals("D | 0 | report | 2026-08-25T18:00:00",
+                parseAndExecute("DEADLINE  report /BY 2026-08-25 1800",
+                        taskFile)
+                        .toSaveFormat());
+        assertEquals("E | 0 | meeting | 2026-08-25T14:00:00"
+                        + " | 2026-08-25T16:00:00",
+                parseAndExecute("EVENT  meeting /FROM 2026-08-25 1400 /TO 4pm",
+                        taskFile).toSaveFormat());
+    }
+
     @Test
     void parseByeReturnsExitCommand() throws DingleberryException {
         Command command = Parser.parse("bye");
@@ -368,4 +392,19 @@ class ParserTest {
                 exception.getMessage());
     }
 
+    /**
+     * Executes the public parser's result against isolated task storage.
+     *
+     * @param input the raw command input.
+     * @param taskFile the isolated persistence file.
+     * @return the constructed task after execution.
+     * @throws DingleberryException if parsing or execution fails validation.
+     */
+    private static Task parseAndExecute(final String input, final Path taskFile)
+            throws DingleberryException {
+        TaskList tasks = new TaskList();
+        Parser.parse(input).execute(tasks, new Ui(),
+                new Storage(taskFile.toString()));
+        return tasks.get(0);
+    }
 }
